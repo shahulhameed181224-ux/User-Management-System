@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 from datetime import date
 from datetime import datetime
@@ -27,7 +29,8 @@ class UserCreate(BaseModel):
     role: str
     full_name: str
 
-    tenant_id: UUID | None = None
+    tenant_id: Optional[UUID] = None
+    tenant_name: Optional[str] = None
 
     is_active: bool = True
 
@@ -40,8 +43,26 @@ class UserCreate(BaseModel):
     updated_by: str | None = None
 
 
-class UserResponse(UserCreate):
+class UserResponse(BaseModel):
     id: UUID
+
+    phone_number: str
+    role: str
+    full_name: str
+
+    tetnant_id: UUID
+    tenant_name: Optional[str] = None
+
+    is_active: bool
+
+    email_id: str
+    address: str
+    dob: date
+    bio_details: str
+
+    created_by: str
+    updated_by: str
+    
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
