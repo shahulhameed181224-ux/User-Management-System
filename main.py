@@ -13,12 +13,25 @@ from database import engine
 from schemas import UserCreate
 from schemas import UserResponse
 
+from schemas import (
+    UserCreate,
+    TenantCreate,
+    TenantResponse
+)
+
+
 from crud import (
     create_user,
     get_users,
     get_user,
     update_user,
-    delete_user
+    delete_user,
+
+    create_tenant,
+    get_tenants,
+    get_tenant,
+    update_tenant,
+    delete_tenant
 )
 
 import models
@@ -142,4 +155,86 @@ def remove_user(
 
     return {
         "message": "User Deleted Successfully"
+    }
+
+# Create Tenant
+@app.post(
+    "/tenants",
+    response_model=TenantResponse,
+)
+def add_tenant(
+    tenant: TenantCreate,
+    db: Session = Depends(get_db)
+):
+    return create_tenant(db, tenant)
+
+# Get All Tenants
+@app.get(
+    "/tenants",
+    response_model=list[TenantResponse]
+)
+def all_tenants(
+    db: Session = Depends(get_db)
+):
+    return get_tenants(db)
+
+# Get Tenant by ID
+@app.get(
+    "/tenants/{tenant_id}",
+    response_model=TenantResponse
+)
+def single_tenant(
+    tenant_id: str,
+    db: Session = Depends(get_db)
+):
+    tenant = get_tenant(db, tenant_id)
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant Not Found"
+        )
+
+    return tenant
+
+# Update Tenant
+@app.put(
+    "/tenants/{tenant_id}",
+    response_model=TenantResponse
+)
+def modify_tenant(
+    tenant_id: str,
+    tenant: TenantCreate,
+    db: Session = Depends(get_db)
+):
+    updated_tenant = update_tenant(
+        db,
+        tenant_id,
+        tenant
+    )
+
+    if not updated_tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant Not Found"
+        )
+
+    return updated_tenant
+
+# Delete Tenant
+@app.delete("/tenants/{tenant_id}")
+def remove_tenant(
+    tenant_id: str,
+    db: Session = Depends(get_db)
+):
+    tenant = delete_tenant(db, tenant_id)
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant Not Found"
+        )
+
+    return {
+        "message": "Tenant Deleted Successfully"
     }

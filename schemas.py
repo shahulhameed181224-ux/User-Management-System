@@ -4,6 +4,24 @@ from datetime import datetime
 from uuid import UUID
 
 
+class TenantCreate(BaseModel):
+    tenant_name: str
+    tenant_type: str
+    created_by: str
+    updated_by: str | None = None
+
+class TenantResponse(BaseModel):
+    id: UUID
+    tenant_name: str
+    tenant_type: str
+    created_by: str
+    updated_by: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
+        
 class UserCreate(BaseModel):
     phone_number: str
     role: str
