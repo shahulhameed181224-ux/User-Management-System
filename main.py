@@ -67,6 +67,7 @@ def home():
 @app.post(
     "/tenants",
     response_model=TenantResponse,
+    tags=["Tenants"]
 )
 def add_tenant(
     tenant: TenantCreate,
@@ -77,7 +78,8 @@ def add_tenant(
 # Get All Tenants
 @app.get(
     "/tenants",
-    response_model=list[TenantResponse]
+    response_model=list[TenantResponse],
+    tags=["Tenants"]
 )
 def all_tenants(
     db: Session = Depends(get_db)
@@ -87,7 +89,8 @@ def all_tenants(
 # Get Tenant by ID
 @app.get(
     "/tenants/{tenant_id}",
-    response_model=TenantResponse
+    response_model=TenantResponse,
+    tags=["Tenants"]
 )
 def single_tenant(
     tenant_id: str,
@@ -106,7 +109,8 @@ def single_tenant(
 # Update Tenant
 @app.put(
     "/tenants/{tenant_id}",
-    response_model=TenantResponse
+    response_model=TenantResponse,
+    tags=["Tenants"]
 )
 def modify_tenant(
     tenant_id: str,
@@ -128,7 +132,7 @@ def modify_tenant(
     return updated_tenant
 
 # Delete Tenant
-@app.delete("/tenants/{tenant_id}")
+@app.delete("/tenants/{tenant_id}", tags=["Tenants"])
 def remove_tenant(
     tenant_id: str,
     db: Session = Depends(get_db)

@@ -117,6 +117,7 @@ def create_user(db, user):
     full_name=user.full_name,
 
     tenant_id=tenant.id,      # Automatically assigned
+    tenant_name=tenant.tenant_name,  # Automatically assigned
 
     is_active=user.is_active,
     email_id=user.email_id,

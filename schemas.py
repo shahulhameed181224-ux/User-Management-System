@@ -50,8 +50,8 @@ class UserResponse(BaseModel):
     role: str
     full_name: str
 
-    tetnant_id: UUID
-    tenant_name: Optional[str] = None
+    tenant_id: UUID | None = None
+    tenant_name: str | None = None
 
     is_active: bool
 
