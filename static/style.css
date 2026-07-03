@@ -1,0 +1,63 @@
+body{
+    font-family: Arial;
+    background:#f2f2f2;
+    margin:40px;
+}
+
+h1{
+    text-align:center;
+}
+
+.container{
+    display:flex;
+    justify-content:center;
+    gap:40px;
+}
+
+.card{
+    background:white;
+    width:300px;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px gray;
+    text-align:center;
+}
+
+button{
+    padding:10px 20px;
+    cursor:pointer;
+    border:none;
+    background:#2196F3;
+    color:white;
+    border-radius:5px;
+}
+
+button:hover{
+    background:#0b7dda;
+}
+
+input,
+select{
+    width:250px;
+    padding:8px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+}
+
+th, td{
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#2196F3;
+    color:white;
+}
+
+tr:nth-child(even){
+    background:#f2f2f2;
+}

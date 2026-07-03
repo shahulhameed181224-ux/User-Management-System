@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tenant Management</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<h1>Tenant Management</h1>
+
+<div class="card">
+
+    <h2>Create Tenant</h2>
+
+    <form id="tenantForm">
+
+        <input
+            type="text"
+            id="tenant_name"
+            placeholder="Tenant Name"
+            required>
+
+        <br><br>
+
+        <select id="tenant_type">
+
+            <option value="INDIVIDUAL">Individual</option>
+
+            <option value="GROUP">Group</option>
+
+            <option value="ENTERPRISE">Enterprise</option>
+
+        </select>
+
+        <br><br>
+
+        <input
+            type="text"
+            id="created_by"
+            placeholder="Created By"
+            required>
+
+        <br><br>
+
+        <button type="submit">
+            Create Tenant
+        </button>
+
+    </form>
+
+</div>
+
+<hr>
+
+<h2>Tenant List</h2>
+
+<button onclick="loadTenants()">
+    Refresh
+</button>
+
+<table border="1" id="tenantTable">
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Name</th>
+
+<th>Type</th>
+
+<th>Created By</th>
+
+<th>Created At</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+<script src="/static/script.js"></script>
+
+</body>
+
+</html>

@@ -5,10 +5,16 @@ from datetime import date
 from datetime import datetime
 from uuid import UUID
 
+from enum import Enum
+
+class TenantType(str, Enum):
+    GROUP="GROUP"
+    INDIVIDUAL="INDIVIDUAL"
+    ENTERPRISE="ENTERPRISE"
 
 class TenantCreate(BaseModel):
     tenant_name: str
-    tenant_type: str
+    tenant_type: TenantType
     created_by: str
     updated_by: str | None = None
 

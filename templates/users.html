@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Management</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            background:#f4f4f4;
+            padding:40px;
+        }
+
+        .container{
+            width:600px;
+            margin:auto;
+            background:white;
+            padding:25px;
+            border-radius:10px;
+            box-shadow:0 0 10px gray;
+        }
+
+        input,select{
+            width:100%;
+            padding:10px;
+            margin:8px 0;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            background:green;
+            color:white;
+            border:none;
+            font-size:16px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:darkgreen;
+        }
+
+        h2{
+            text-align:center;
+        }
+
+        #result{
+            margin-top:20px;
+            color:green;
+            font-weight:bold;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Create User</h2>
+
+<form id="userForm">
+
+<input type="text"
+name="full_name"
+placeholder="Full Name"
+required>
+
+<input type="text"
+name="phone_number"
+placeholder="Phone Number"
+required>
+
+<input type="email"
+name="email_id"
+placeholder="Email">
+
+<input type="text"
+name="role"
+placeholder="Role">
+
+<input type="text"
+name="tenant_name"
+placeholder="Tenant Name">
+
+<input type="text"
+name="address"
+placeholder="Address">
+
+<input type="date"
+name="dob">
+
+<input type="text"
+name="bio_details"
+placeholder="Bio">
+
+<input type="text"
+name="created_by"
+placeholder="Created By">
+
+<button type="submit">
+Create User
+</button>
+
+</form>
+
+<div id="result"></div>
+
+</div>
+
+<hr>
+
+<h2>All Users</h2>
+
+<table border="1" width="100%" id="userTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Tenant</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    </tbody>
+</table>
+
+<script>
+
+ async function loadUsers(){
+
+    const response = await fetch("/users");
+
+    const users = await response.json();
+
+    const tbody = document.querySelector("#userTable tbody");
+
+    tbody.innerHTML = "";
+
+    users.forEach(user=>{
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${user.full_name}</td>
+            <td>${user.phone_number}</td>
+            <td>${user.email_id ?? ""}</td>
+            <td>${user.role}</td>
+            <td>${user.tenant_name ?? ""}</td>
+            <td>${user.is_active}</td>
+
+            <td>
+                <button onclick="editUser('${user.id}')">Edit</button>
+
+                <button onclick="deleteUser('${user.id}')">Delete</button>
+            </td>
+        </tr>
+        `;
+
+    });
+
+}
+
+async function deleteUser(userId){
+
+    if(confirm("Are you sure you want to delete this user?")){
+
+        const response = await fetch(`/users/${userId}`,{
+            method:"DELETE"
+        });
+
+        const result = await response.json();
+
+        alert(result.message);
+
+        loadUsers();
+    }
+
+}
+
+async function editUser(id){
+
+    const response = await fetch("/users/"+id);
+
+    const user = await response.json();
+
+    document.querySelector("[name='full_name']").value=user.full_name;
+
+    document.querySelector("[name='phone_number']").value=user.phone_number;
+
+    document.querySelector("[name='email_id']").value=user.email_id;
+
+    document.querySelector("[name='role']").value=user.role;
+
+    document.querySelector("[name='tenant_name']").value=user.tenant_name;
+
+    document.querySelector("[name='address']").value=user.address;
+
+    document.querySelector("[name='bio_details']").value=user.bio_details;
+
+    document.querySelector("[name='created_by']").value=user.created_by;
+
+    document.getElementById("userForm").dataset.id=id;
+
+    document.querySelector("#userForm button").innerText = "Update User";
+
+}
+
+loadUsers();
+
+document.getElementById("userForm").addEventListener("submit",async function(e){
+
+e.preventDefault();
+
+const form=new FormData(this);
+
+const data={
+
+full_name:form.get("full_name"),
+phone_number:form.get("phone_number"),
+email_id:form.get("email_id"),
+role:form.get("role"),
+tenant_name:form.get("tenant_name"),
+address:form.get("address"),
+dob:form.get("dob"),
+bio_details:form.get("bio_details"),
+created_by:form.get("created_by"),
+updated_by:null,
+is_active:true
+
+};
+
+let id = document.getElementById("userForm").dataset.id;
+
+let url = "/users";
+let method = "POST";
+
+if (id) {
+    url = "/users/" + id;
+    method = "PUT";
+}
+
+const response = await fetch(url, {
+    method: method,
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+});
+
+const result=await response.json();
+
+document.getElementById("result").innerHTML=
+JSON.stringify(result,null,2);
+
+// Clear the form
+document.getElementById("userForm").reset();
+
+//Exit edit mode
+document.getElementById("userForm").dataset.id = "";
+
+//Change button text back
+document.querySelector("#userForm button").innerText = "Create User";
+
+//Reload the Table
+loadUsers();
+
+});
+
+</script>
+
+</body>
+</html>
