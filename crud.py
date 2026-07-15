@@ -1,6 +1,6 @@
 from models import User, Tenant
 from fastapi import HTTPException
-
+from security import hash_password
 # TENANT CRUD OPERATIONS
 
 def create_tenant(db, tenant):
@@ -110,17 +110,21 @@ def create_user(db, user):
             status_code=400,
             detail="Either tenant_id or tenant_name must be provided."
         )
+    
+    print("Password entered:", user.password)
+    print("Password length:", len(user.password))
+    len(user.password)
 
     db_user = User(
     phone_number=user.phone_number,
     role=user.role,
     full_name=user.full_name,
 
-    tenant_id=tenant.id,      # Automatically assigned
-    tenant_name=tenant.tenant_name,  # Automatically assigned
+    tenant_id=tenant.id,
 
     is_active=user.is_active,
     email_id=user.email_id,
+    password=hash_password(user.password),
     address=user.address,
     dob=user.dob,
     bio_details=user.bio_details,
@@ -132,17 +136,26 @@ def create_user(db, user):
     db.commit()
     db.refresh(db_user)
 
+    #Add tenant_name only for the API reponse
+    db_user.tenant_name = db_user.tenant.tenant_name
+
     return db_user
 
 
 def get_users(db):
-    return db.query(User).all()
+    users = db.query(User).all()
+    for user in users:
+        user.tenant_name = user.tenant.tenant_name
+    return users
 
 
 def get_user(db, user_id):
-    return db.query(User).filter(
+    user = db.query(User).filter(
         User.id == user_id
     ).first()
+    if user:
+        user.tenant_name = user.tenant.tenant_name
+    return user
 
 
 def update_user(db, user_id, user_data):
@@ -159,6 +172,7 @@ def update_user(db, user_id, user_data):
     db.commit()
     db.refresh(user)
 
+    user.tenant_name = user.tenant.tenant_name
     return user
 
 
@@ -173,4 +187,13 @@ def delete_user(db, user_id):
     db.delete(user)
     db.commit()
 
+    return user
+
+from security import verify_password
+def authenticate_user(db, email, password):
+    user = db.query(User).filter(User.email_id == email).first()
+    if not user:
+        return None
+    if not verify_password(password, user.password):
+        return None
     return user

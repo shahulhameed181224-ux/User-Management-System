@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+
+    <style>
+        body{
+            font-family:Arial;
+            background:#f4f4f4;
+            text-align:center;
+        }
+
+        .container{
+            width:700px;
+            margin:80px auto;
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 0 10px gray;
+        }
+
+        h1{
+            color:#333;
+        }
+
+        .btn{
+            display:block;
+            width:250px;
+            margin:20px auto;
+            padding:15px;
+            background:green;
+            color:white;
+            text-decoration:none;
+            border-radius:8px;
+            font-size:18px;
+        }
+
+        .btn:hover{
+            background:darkgreen;
+        }
+
+        .logout{
+            background:red;
+        }
+
+        .logout:hover{
+            background:darkred;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>User Management System</h1>
+
+<h3 id="welcome"></h3>
+
+<a class="btn" href="/users-page">
+👤 User Management
+</a>
+
+<a class="btn" href="/tenants-page">
+🏢 Tenant Management
+</a>
+
+<button class="btn logout" onclick="logout()">
+Logout
+</button>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("access_token");
+
+if(!token){
+    window.location.href="/login";
+}
+
+document.getElementById("welcome").innerHTML =
+"Welcome to the Dashboard";
+
+function logout(){
+
+    localStorage.removeItem("access_token");
+
+    window.location.href="/login";
+
+}
+
+</script>
+
+</body>
+</html>

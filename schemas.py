@@ -7,6 +7,9 @@ from uuid import UUID
 
 from enum import Enum
 
+import phonenumbers
+from pydantic import field_validator
+
 class TenantType(str, Enum):
     GROUP="GROUP"
     INDIVIDUAL="INDIVIDUAL"
@@ -31,7 +34,7 @@ class TenantResponse(BaseModel):
         from_attributes = True
         
 class UserCreate(BaseModel):
-    phone_number: str
+    phone_number: str        
     role: str
     full_name: str
 
@@ -40,13 +43,27 @@ class UserCreate(BaseModel):
 
     is_active: bool = True
 
-    email_id: str | None = None
+    email_id: str 
+    password: str
+
     address: str | None = None
     dob: date | None = None
     bio_details: str | None = None
 
     created_by: str
     updated_by: str | None = None
+
+    @field_validator("phone_number")
+    @classmethod
+    def validate_phone(cls, value):
+        try:
+            phone=phonenumbers.parse(value, None)
+            if not phonenumbers.is_valid_number(phone):
+                raise ValueError("Invalid phone number")
+            
+            return phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.E164)
+        except:
+            raise ValueError("Invalid phone number")
 
 
 class UserResponse(BaseModel):
@@ -62,12 +79,12 @@ class UserResponse(BaseModel):
     is_active: bool
 
     email_id: str
-    address: str
-    dob: date
-    bio_details: str
+    address: str | None = None
+    dob: date | None = None
+    bio_details: str | None = None
 
     created_by: str
-    updated_by: str
+    updated_by: str | None = None
     
     created_at: datetime | None = None
     updated_at: datetime | None = None

@@ -1,5 +1,11 @@
 const API = "http://127.0.0.1:8000";
 
+const token = localStorage.getItem("access_token");
+
+if(!token){
+    window.location.href = "/login";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const form = document.getElementById("tenantForm");
@@ -27,7 +33,7 @@ async function createTenant(event){
 
         created_by: document.getElementById("created_by").value,
 
-        updated_by: ""
+        updated_by: document.getElementById("updated_by").value
 
     };
 
@@ -36,7 +42,8 @@ async function createTenant(event){
         method:"POST",
 
         headers:{
-            "Content-Type":"application/json"
+            "Content-Type":"application/json",
+            "Authorization": "Bearer " + token
         },
 
         body:JSON.stringify(data)
@@ -63,7 +70,13 @@ async function createTenant(event){
 
 async function loadTenants(){
 
-    const response = await fetch(API + "/tenants");
+    const response = await fetch(API + "/tenants",{
+
+        headers:{
+            "Authorization": "Bearer " + token
+        }
+
+    });
 
     const tenants = await response.json();
 
@@ -93,4 +106,11 @@ async function loadTenants(){
 
     });
 
+}
+
+// Logout Function
+function logout(){
+
+    localStorage.removeItem("access_token");
+    window.location.href = "/login";
 }

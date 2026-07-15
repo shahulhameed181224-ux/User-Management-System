@@ -1,12 +1,22 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
 from uuid import UUID
+from datetime import timedelta
+
+from security import create_access_token
 
 from database import SessionLocal, engine
+
+from dependencies import (
+    admin_required,
+    manager_required, 
+    get_current_user
+    )
 
 from schemas import (
     UserCreate,
@@ -26,7 +36,9 @@ from crud import (
     get_users,
     get_user,
     update_user,
-    delete_user
+    delete_user,
+
+    authenticate_user
 )
 
 import models
@@ -58,12 +70,47 @@ def get_db():
 
 # Home Page
 @app.get("/", response_class=HTMLResponse, tags=["home"])
-def home(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
+def home():
+    return RedirectResponse(url="/login"
     )
 
+# Login Page
+@app.get("/login", response_class=HTMLResponse, tags=["login"])
+def login_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+    )
+
+@app.post("/login", tags=["login"])
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    user = authenticate_user(
+        db,
+        form_data.username,
+        form_data.password
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
+    access_token = create_access_token(
+        data={
+            "sub": user.email_id,
+            "role": user.role
+        },
+        expires_delta=timedelta(minutes=30)
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 # Tenant Page
 @app.get("/tenants-page", response_class=HTMLResponse, tags=["tenants"])
@@ -84,11 +131,21 @@ def users_page(request: Request):
         context={"tags": ["users"]}
     )
 
+# Dashboard Page
+@app.get("/dashboard", response_class=HTMLResponse, tags=["dashboard"])
+def dashboard_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html",
+        context={"tags": ["dashboard"]}
+    )
+
 # TENANT APIs
 
 # Create Tenant
 @app.post(
     "/tenants",
+    dependencies=[Depends(get_current_user)],
     response_model=TenantResponse,
     status_code=status.HTTP_201_CREATED,tags=["tenants"]
 )
@@ -102,6 +159,7 @@ def add_tenant(
 # Get All Tenants
 @app.get(
     "/tenants",
+    dependencies=[Depends(get_current_user)],
     response_model=list[TenantResponse],tags=["tenants"]
 )
 def all_tenants(
@@ -113,6 +171,7 @@ def all_tenants(
 # Get Single Tenant
 @app.get(
     "/tenants/{tenant_id}",
+    dependencies=[Depends(get_current_user)],
     response_model=TenantResponse,tags=["tenants"]
 )
 def single_tenant(
@@ -133,6 +192,7 @@ def single_tenant(
 # Update Tenant
 @app.put(
     "/tenants/{tenant_id}",
+    dependencies=[Depends(get_current_user)],
     response_model=TenantResponse,tags=["tenants"]
 )
 def modify_tenant(
@@ -156,7 +216,7 @@ def modify_tenant(
 
 
 # Delete Tenant
-@app.delete("/tenants/{tenant_id}", tags=["tenants"])
+@app.delete("/tenants/{tenant_id}", tags=["tenants"], dependencies=[Depends(get_current_user)])
 def remove_tenant(
     tenant_id: UUID,
     db: Session = Depends(get_db)
@@ -181,6 +241,7 @@ def remove_tenant(
 # Create User
 @app.post(
     "/users",
+    dependencies=[Depends(get_current_user)],
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,tags=["users"]
 )
@@ -194,6 +255,7 @@ def add_user(
 # Get All Users
 @app.get(
     "/users",
+    dependencies=[Depends(get_current_user)],
     response_model=list[UserResponse],tags=["users"]
 )
 def all_users(
@@ -205,6 +267,7 @@ def all_users(
 # Get Single User
 @app.get(
     "/users/{user_id}",
+    dependencies=[Depends(get_current_user)],
     response_model=UserResponse,tags=["users"]
 )
 def single_user(
@@ -228,6 +291,7 @@ def single_user(
 # Update User
 @app.put(
     "/users/{user_id}",
+    dependencies=[Depends(get_current_user)],
     response_model=UserResponse,tags=["users"]
 )
 def modify_user(
@@ -251,7 +315,7 @@ def modify_user(
 
 
 # Delete User
-@app.delete("/users/{user_id}", tags=["users"])
+@app.delete("/users/{user_id}", tags=["users"], dependencies=[Depends(get_current_user)])
 def remove_user(
     user_id: UUID,
     db: Session = Depends(get_db)

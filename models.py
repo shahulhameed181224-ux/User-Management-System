@@ -76,7 +76,9 @@ class User(Base):
     )
 
     phone_number = Column(
-        String(20)
+        String(20),
+        unique=True,
+        nullable=False
     )
 
     role = Column(
@@ -99,7 +101,14 @@ class User(Base):
     )
 
     email_id = Column(
-        String(255)
+        String(255),
+        unique=True,
+        nullable=False
+    )
+
+    password = Column(
+        String(255),
+        nullable=False
     )
 
     address = Column(
