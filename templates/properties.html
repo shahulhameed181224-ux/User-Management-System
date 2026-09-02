@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #64748b;
+            --secondary-hover: #475569;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --danger-bg: #fef2f2;
+            --warning-bg: #fffbeb;
+            --warning: #d97706;
+            --info: #0284c7;
+            --info-hover: #0369a1;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .top-navbar {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-secondary:hover { background: var(--secondary-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-info { background: var(--info); color: white; }
+        .btn-info:hover { background: var(--info-hover); }
+        .btn-sm { padding: 6px 10px; font-size: 0.775rem; }
+
+        .card-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 28px;
+        }
+
+        .card-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group.double {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            background: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .table-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #f8fafc; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-active { background: var(--success-bg); color: var(--success); }
+        .badge-inactive { background: var(--danger-bg); color: var(--danger); }
+        .badge-code { background: #f1f5f9; color: #475569; font-family: monospace; font-size: 0.8rem; }
+
+        #message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: none;
+        }
+        #message.success { display: block; background: var(--success-bg); color: var(--success); }
+        #message.error { display: block; background: var(--danger-bg); color: var(--danger); }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border-radius: 12px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .details-section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #eff6ff;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px 16px;
+        }
+
+        .detail-item {
+            background: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .detail-item strong {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .detail-item span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            word-break: break-word;
+        }
+
+        .detail-item.full {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 1024px) {
+            .form-grid { grid-template-columns: repeat(2, 1fr); }
+            .detail-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .top-navbar { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAVBAR -->
+    <header class="top-navbar">
+        <div class="brand-title">
+            🏡 Property Management
+        </div>
+        <div class="nav-links">
+            <button class="btn-outline" onclick="window.location.href='/dashboard'">Dashboard</button>
+            <button class="btn-outline" onclick="window.location.href='/users-page'">Users</button>
+            <button class="btn-outline" onclick="window.location.href='/documents-page'">Documents</button>
+            <button class="btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <!-- CREATE / UPDATE PROPERTY FORM -->
+    <div class="card-container">
+        <div class="card-header">
+            <h2 id="formTitle">Register New Property</h2>
+        </div>
+
+        <form id="propertyForm">
+            <!-- Hidden Tenant ID field auto-populated from Assigned User -->
+            <input type="hidden" name="tenant_id" id="tenant_id">
+
+            <div class="form-grid">
+                <!-- USER LINK -->
+                <div class="form-group">
+                    <label>Assigned User *</label>
+                    <select id="user_id" name="user_id" required>
+                        <option value="">Select User</option>
+                    </select>
+                </div>
+
+                <!-- CORE ATTRIBUTES -->
+                <div class="form-group">
+                    <label>Property Code *</label>
+                    <input type="text" name="property_code" placeholder="PROP-001" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Property Name *</label>
+                    <input type="text" name="property_name" placeholder="Green Valley Estate" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="property_location" placeholder="City / Area">
+                </div>
+
+                <div class="form-group">
+                    <label>Landmark</label>
+                    <input type="text" name="property_landmark" placeholder="Near Metro Station">
+                </div>
+
+                <!-- GEOGRAPHY & DIMENSIONS -->
+                <div class="form-group">
+                    <label>Latitude</label>
+                    <input type="number" step="any" name="latitude" placeholder="11.0168">
+                </div>
+
+                <div class="form-group">
+                    <label>Longitude</label>
+                    <input type="number" step="any" name="longitude" placeholder="76.9558">
+                </div>
+
+                <div class="form-group">
+                    <label>Area Size</label>
+                    <input type="number" step="any" name="area_size" placeholder="2400">
+                </div>
+
+                <div class="form-group">
+                    <label>Measurement Type</label>
+                    <select name="measurement_type">
+                        <option value="">Select Measurement</option>
+                        <option value="SQUARE_FEET">Square Feet</option>
+                        <option value="CENT">Cent</option>
+                        <option value="ECHAR">Echar</option>
+                        <option value="HECTARE">Hectare</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Plot Type</label>
+                    <select name="plot_type">
+                        <option value="">Select Plot Type</option>
+                        <option value="COMMERCIAL">Commercial</option>
+                        <option value="NON_COMMERCIAL">Non Commercial</option>
+                        <option value="INDUSTRIAL">Industrial</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ownership Type</label>
+                    <select name="ownership_type">
+                        <option value="">Select Ownership</option>
+                        <option value="SINGLE">Single</option>
+                        <option value="JOINT">Joint</option>
+                    </select>
+                </div>
+
+                <!-- VALUATION & TIMELINES -->
+                <div class="form-group">
+                    <label>Purchase Date</label>
+                    <input type="date" name="purchase_date">
+                </div>
+
+                <div class="form-group">
+                    <label>Market Value (INR)</label>
+                    <input type="number" step="any" name="market_value" placeholder="5000000">
+                </div>
+
+                <div class="form-group">
+                    <label>Verified Status</label>
+                    <select name="verified_status">
+                        <option value="">Select Status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="VERIFIED">Verified</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Risk Level</label>
+                    <select name="risk_level">
+                        <option value="">Select Risk</option>
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Fence Status</label>
+                    <select name="fence_status">
+                        <option value="false">No Fence</option>
+                        <option value="true">Fenced</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Active Status</label>
+                    <select name="is_active">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+
+                <!-- SITE INSPECTION DETAILS -->
+                <div class="form-group">
+                    <label>Boundary Stones</label>
+                    <input type="number" name="boundary_stones" placeholder="4">
+                </div>
+
+                <div class="form-group">
+                    <label>Encroachment Detected?</label>
+                    <select name="encroachment">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Latest EC Date</label>
+                    <input type="date" name="latest_ec_date">
+                </div>
+
+                <div class="form-group">
+                    <label>Land Owner Name</label>
+                    <input type="text" name="land_owner_name" placeholder="Original Owner Name">
+                </div>
+
+                <div class="form-group">
+                    <label>Source / Acquisition</label>
+                    <input type="text" name="source" placeholder="Direct / Agency">
+                </div>
+
+                <div class="form-group">
+                    <label>Last Visited At</label>
+                    <input type="datetime-local" name="last_visited_at">
+                </div>
+
+                <!-- AUDIT -->
+                <div class="form-group">
+                    <label>Created By *</label>
+                    <input type="text" name="created_by" placeholder="Admin username" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Updated By</label>
+                    <input type="text" name="updated_by" placeholder="Admin username">
+                </div>
+
+                <div class="form-group">
+                    <label>Photo URL</label>
+                    <input type="url" name="photo_url" placeholder="https://...">
+                </div>
+
+                <!-- URL LINKS -->
+                <div class="form-group">
+                    <label>Location URL</label>
+                    <input type="url" name="location_url" placeholder="Google Maps link">
+                </div>
+
+                <div class="form-group double">
+                    <label>Embedded Map URL</label>
+                    <input type="url" name="embedded_url" placeholder="https://maps.google.com/embed?...">
+                </div>
+
+                <!-- LONG TEXT FIELDS -->
+                <div class="form-group full">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="Comprehensive property summary"></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>Remarks</label>
+                    <textarea name="remarks" placeholder="General observations or notes"></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>Visit Plan</label>
+                    <textarea name="visit_plan" placeholder="Schedule or inspection checklist"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Legal Disputes</label>
+                    <textarea name="legal_disputes" placeholder="Details of any ongoing court case / dispute"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Neighbour Issues</label>
+                    <textarea name="neighbour_issues" placeholder="Boundary / easement concerns"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Vegetation Issues</label>
+                    <textarea name="vegetation_issues" placeholder="Overgrowth / tree clearing needs"></textarea>
+                </div>
+
+                <div class="form-group double">
+                    <label>Service Required</label>
+                    <textarea name="service_required" placeholder="Surveying, cleaning, fencing repairs, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea name="additional_notes" placeholder="Misc notes"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-outline" onclick="cancelEdit()">Cancel / Reset</button>
+                <button type="submit" class="btn-primary" id="submitButton">Create Property</button>
+            </div>
+        </form>
+        <div id="message"></div>
+    </div>
+
+    <!-- PROPERTIES DATA TABLE (ALL ATTRIBUTES VIEW) -->
+    <div class="table-section">
+        <div class="card-header">
+            <h2>All Properties Directory</h2>
+            <button class="btn-outline btn-sm" onclick="loadProperties()">🔄 Refresh Directory</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="propertyTable">
+                <thead>
+                    <tr>
+                        <th>Actions</th>
+                        <th>Code</th>
+                        <th>Property Name</th>
+                        <th>Tenant</th>
+                        <th>Assigned User</th>
+                        <th>Location</th>
+                        <th>Landmark</th>
+                        <th>Area Size</th>
+                        <th>Measurement</th>
+                        <th>Plot Type</th>
+                        <th>Ownership</th>
+                        <th>Purchase Date</th>
+                        <th>Market Value</th>
+                        <th>Status</th>
+                        <th>Verified</th>
+                        <th>Risk Level</th>
+                        <th>Fence</th>
+                        <th>Encroachment</th>
+                        <th>Boundary Stones</th>
+                        <th>Owner Name</th>
+                        <th>Source</th>
+                        <th>Last Visited</th>
+                        <th>Created By</th>
+                        <th>Updated By</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- COMPREHENSIVE PROPERTY VIEW MODAL -->
+    <div id="propertyModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modalPropertyTitle" style="font-size: 1.25rem;">Property Specifications</h3>
+                    <p id="modalPropertySubtitle" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;"></p>
+                </div>
+                <button class="btn-outline btn-sm" onclick="closePropertyModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalDetailsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            window.location.href = "/login";
+        }
+
+        function logout() {
+            localStorage.removeItem("access_token");
+            window.location.href = "/login";
+        }
+
+        let availableUsers = [];
+
+        // 1. Load users & populate user select
+        async function loadUsers() {
+            try {
+                const response = await fetch("/users", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (response.status === 401) return logout();
+                if (!response.ok) throw new Error("Unable to load users");
+
+                availableUsers = await response.json();
+
+                const userSelect = document.getElementById("user_id");
+                userSelect.innerHTML = '<option value="">Select User</option>';
+
+                availableUsers.forEach(user => {
+                    const userOption = document.createElement("option");
+                    userOption.value = user.id;
+                    userOption.textContent = `${user.full_name || user.email_id} (${user.tenant_name || 'No Tenant'})`;
+                    userOption.dataset.tenantId = user.tenant_id || "";
+                    userSelect.appendChild(userOption);
+                });
+
+            } catch (error) {
+                console.error("loadUsers error:", error);
+            }
+        }
+
+        // Auto-assign hidden tenant_id when User is picked
+        document.getElementById("user_id").addEventListener("change", function () {
+            const selected = this.options[this.selectedIndex];
+            const tenantId = selected.dataset.tenantId;
+            document.getElementById("tenant_id").value = tenantId || "";
+        });
+
+        // 2. Load Properties Directory Table
+        async function loadProperties() {
+            try {
+                const response = await fetch("/properties", {
+                    method: "GET",
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (response.status === 401) return logout();
+                const properties = await response.json();
+
+                const tbody = document.querySelector("#propertyTable tbody");
+                tbody.innerHTML = "";
+
+                if (!properties || properties.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="24" style="text-align: center; color: var(--text-muted);">No property records found.</td></tr>`;
+                    return;
+                }
+
+                properties.forEach(p => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>
+                            <button class="btn-info btn-sm" onclick="viewProperty('${p.id}')">View</button>
+                            <button class="btn-outline btn-sm" onclick="editProperty('${p.id}')">Edit</button>
+                            <button class="btn-outline btn-sm" onclick="window.location.href='/documents-page?code=${p.property_code}'">Docs</button>
+                            <button class="btn-danger btn-sm" onclick="deleteProperty('${p.id}')">Delete</button>
+                        </td>
+                        <td><span class="badge badge-code">${escapeHtml(p.property_code)}</span></td>
+                        <td><strong>${escapeHtml(p.property_name)}</strong></td>
+                        <td>${escapeHtml(p.tenant_name || "No Tenant")}</td>
+                        <td>${escapeHtml(p.user_name || "Unassigned")}</td>
+                        <td>${escapeHtml(p.property_location || "-")}</td>
+                        <td>${escapeHtml(p.property_landmark || "-")}</td>
+                        <td>${p.area_size || "-"}</td>
+                        <td>${escapeHtml(p.measurement_type || "-")}</td>
+                        <td>${escapeHtml(p.plot_type || "-")}</td>
+                        <td>${escapeHtml(p.ownership_type || "-")}</td>
+                        <td>${p.purchase_date || "-"}</td>
+                        <td>${p.market_value ? '₹' + Number(p.market_value).toLocaleString('en-IN') : '-'}</td>
+                        <td>
+                            <span class="badge ${p.is_active ? 'badge-active' : 'badge-inactive'}">
+                                ${p.is_active ? "Active" : "Inactive"}
+                            </span>
+                        </td>
+                        <td>${escapeHtml(p.verified_status || "PENDING")}</td>
+                        <td>${escapeHtml(p.risk_level || "-")}</td>
+                        <td>${p.fence_status ? "Fenced" : "No"}</td>
+                        <td>${p.encroachment ? "Yes" : "No"}</td>
+                        <td>${p.boundary_stones ?? "-"}</td>
+                        <td>${escapeHtml(p.land_owner_name || "-")}</td>
+                        <td>${escapeHtml(p.source || "-")}</td>
+                        <td>${p.last_visited_at ? new Date(p.last_visited_at).toLocaleDateString() : "-"}</td>
+                        <td>${escapeHtml(p.created_by || "-")}</td>
+                        <td>${escapeHtml(p.updated_by || "-")}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("loadProperties error:", error);
+            }
+        }
+
+        // 3. View Full Property Details (Modal Window)
+        async function viewProperty(propertyId) {
+            try {
+                const response = await fetch(`/properties/${propertyId}`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!response.ok) return alert("Property record not found.");
+                const p = await response.json();
+
+                document.getElementById("modalPropertyTitle").innerText = p.property_name || "Property Details";
+                document.getElementById("modalPropertySubtitle").innerText = `Code: ${p.property_code || '-'} | ID: ${p.id}`;
+
+                const content = document.getElementById("modalDetailsContent");
+                content.innerHTML = `
+                    <div>
+                        <div class="details-section-title">General & Ownership</div>
+                        <div class="detail-grid">
+                            <div class="detail-item"><strong>Property Code</strong><span>${escapeHtml(p.property_code)}</span></div>
+                            <div class="detail-item"><strong>Property Name</strong><span>${escapeHtml(p.property_name)}</span></div>
+                            <div class="detail-item"><strong>Status</strong><span>${p.is_active ? "Active" : "Inactive"}</span></div>
+                            <div class="detail-item"><strong>Tenant Name</strong><span>${escapeHtml(p.tenant_name || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Assigned User</strong><span>${escapeHtml(p.user_name || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Land Owner</strong><span>${escapeHtml(p.land_owner_name || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Ownership Type</strong><span>${escapeHtml(p.ownership_type || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Purchase Date</strong><span>${p.purchase_date || "N/A"}</span></div>
+                            <div class="detail-item"><strong>Market Value</strong><span>${p.market_value ? '₹' + Number(p.market_value).toLocaleString('en-IN') : 'N/A'}</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="details-section-title">Geographical & Dimensions</div>
+                        <div class="detail-grid">
+                            <div class="detail-item"><strong>Location</strong><span>${escapeHtml(p.property_location || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Landmark</strong><span>${escapeHtml(p.property_landmark || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Area & Unit</strong><span>${p.area_size ? `${p.area_size} ${p.measurement_type || ''}` : 'N/A'}</span></div>
+                            <div class="detail-item"><strong>Plot Type</strong><span>${escapeHtml(p.plot_type || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Coordinates</strong><span>${p.latitude || '-'}, ${p.longitude || '-'}</span></div>
+                            <div class="detail-item"><strong>Boundary Stones</strong><span>${p.boundary_stones ?? "N/A"}</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="details-section-title">Legal, Risk & Compliance</div>
+                        <div class="detail-grid">
+                            <div class="detail-item"><strong>Verified Status</strong><span>${escapeHtml(p.verified_status || "PENDING")}</span></div>
+                            <div class="detail-item"><strong>Risk Level</strong><span>${escapeHtml(p.risk_level || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Fence Status</strong><span>${p.fence_status ? "Fenced" : "No Fence"}</span></div>
+                            <div class="detail-item"><strong>Encroachment</strong><span>${p.encroachment ? "Yes (Detected)" : "None"}</span></div>
+                            <div class="detail-item"><strong>Latest EC Date</strong><span>${p.latest_ec_date || "N/A"}</span></div>
+                            <div class="detail-item"><strong>Acquisition Source</strong><span>${escapeHtml(p.source || "N/A")}</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="details-section-title">Inspection & Remarks</div>
+                        <div class="detail-grid">
+                            <div class="detail-item full"><strong>Description</strong><span>${escapeHtml(p.description || "None")}</span></div>
+                            <div class="detail-item full"><strong>Remarks</strong><span>${escapeHtml(p.remarks || "None")}</span></div>
+                            <div class="detail-item full"><strong>Visit Plan</strong><span>${escapeHtml(p.visit_plan || "None")}</span></div>
+                            <div class="detail-item"><strong>Legal Disputes</strong><span>${escapeHtml(p.legal_disputes || "None")}</span></div>
+                            <div class="detail-item"><strong>Neighbour Issues</strong><span>${escapeHtml(p.neighbour_issues || "None")}</span></div>
+                            <div class="detail-item"><strong>Vegetation Issues</strong><span>${escapeHtml(p.vegetation_issues || "None")}</span></div>
+                            <div class="detail-item full"><strong>Services Required</strong><span>${escapeHtml(p.service_required || "None")}</span></div>
+                            <div class="detail-item full"><strong>Additional Notes</strong><span>${escapeHtml(p.additional_notes || "None")}</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="details-section-title">Audit Log & Media Links</div>
+                        <div class="detail-grid">
+                            <div class="detail-item"><strong>Created By</strong><span>${escapeHtml(p.created_by || "-")}</span></div>
+                            <div class="detail-item"><strong>Updated By</strong><span>${escapeHtml(p.updated_by || "-")}</span></div>
+                            <div class="detail-item"><strong>Last Visited At</strong><span>${p.last_visited_at ? new Date(p.last_visited_at).toLocaleString() : "Never"}</span></div>
+                            <div class="detail-item"><strong>Created At</strong><span>${p.created_at ? new Date(p.created_at).toLocaleDateString() : "-"}</span></div>
+                            <div class="detail-item"><strong>Updated At</strong><span>${p.updated_at ? new Date(p.updated_at).toLocaleDateString() : "-"}</span></div>
+                            <div class="detail-item"><strong>Media</strong><span>${p.photo_url ? `<a href="${p.photo_url}" target="_blank" style="color:var(--primary);">Open Photo</a>` : "No Photo"}</span></div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById("propertyModal").style.display = "flex";
+            } catch (err) {
+                alert("Failed to load property specifications.");
+            }
+        }
+
+        function closePropertyModal() {
+            document.getElementById("propertyModal").style.display = "none";
+        }
+
+        // 4. Edit Property (Populate Full Form)
+        async function editProperty(propertyId) {
+            try {
+                const response = await fetch(`/properties/${propertyId}`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                if (!response.ok) return alert("Property not found");
+                
+                const property = await response.json();
+                const form = document.getElementById("propertyForm");
+
+                form.dataset.id = property.id;
+                form.elements.tenant_id.value = property.tenant_id || "";
+                form.elements.user_id.value = property.user_id || "";
+                form.elements.property_code.value = property.property_code || "";
+                form.elements.property_name.value = property.property_name || "";
+                form.elements.property_location.value = property.property_location || "";
+                form.elements.property_landmark.value = property.property_landmark || "";
+                form.elements.latitude.value = property.latitude || "";
+                form.elements.longitude.value = property.longitude || "";
+                form.elements.area_size.value = property.area_size || "";
+                form.elements.measurement_type.value = property.measurement_type || "";
+                form.elements.plot_type.value = property.plot_type || "";
+                form.elements.ownership_type.value = property.ownership_type || "";
+                form.elements.purchase_date.value = property.purchase_date || "";
+                form.elements.market_value.value = property.market_value || "";
+                form.elements.verified_status.value = property.verified_status || "";
+                form.elements.risk_level.value = property.risk_level || "";
+                form.elements.fence_status.value = String(property.fence_status);
+                form.elements.is_active.value = String(property.is_active);
+                form.elements.boundary_stones.value = property.boundary_stones || "";
+                form.elements.encroachment.value = String(property.encroachment);
+                form.elements.latest_ec_date.value = property.latest_ec_date || "";
+                form.elements.land_owner_name.value = property.land_owner_name || "";
+                form.elements.source.value = property.source || "";
+                form.elements.created_by.value = property.created_by || "";
+                form.elements.updated_by.value = property.updated_by || "";
+                form.elements.photo_url.value = property.photo_url || "";
+                form.elements.location_url.value = property.location_url || "";
+                form.elements.embedded_url.value = property.embedded_url || "";
+                form.elements.description.value = property.description || "";
+                form.elements.remarks.value = property.remarks || "";
+                form.elements.visit_plan.value = property.visit_plan || "";
+                form.elements.legal_disputes.value = property.legal_disputes || "";
+                form.elements.neighbour_issues.value = property.neighbour_issues || "";
+                form.elements.vegetation_issues.value = property.vegetation_issues || "";
+                form.elements.service_required.value = property.service_required || "";
+                form.elements.additional_notes.value = property.additional_notes || "";
+
+                if (property.last_visited_at) {
+                    form.elements.last_visited_at.value = property.last_visited_at.substring(0, 16);
+                }
+
+                document.getElementById("formTitle").innerText = `Update Property: ${property.property_name || property.property_code}`;
+                document.getElementById("submitButton").innerText = "Update Property";
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } catch (e) {
+                alert("Error loading property for editing.");
+            }
+        }
+
+        // 5. Delete Property
+        async function deleteProperty(propertyId) {
+            if (!confirm("Are you sure you want to permanently delete this property and all attached documents?")) return;
+
+            try {
+                const response = await fetch(`/properties/${propertyId}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (response.ok) {
+                    loadProperties();
+                } else {
+                    const err = await response.json();
+                    alert(err.detail || "Unable to delete property");
+                }
+            } catch (err) {
+                alert("Server error during deletion.");
+            }
+        }
+
+        // 6. Submit Property Form (Create / Update)
+        document.getElementById("propertyForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const form = new FormData(this);
+            const data = Object.fromEntries(form.entries());
+            
+            // 1. Boolean conversions
+            data.fence_status = data.fence_status === "true";
+            data.is_active = data.is_active === "true";
+            data.encroachment = data.encroachment === "true";
+
+            // 2. Numeric conversions (set to null if empty)
+            data.latitude = data.latitude !== "" && data.latitude !== null ? Number(data.latitude) : null;
+            data.longitude = data.longitude !== "" && data.longitude !== null ? Number(data.longitude) : null;
+            data.area_size = data.area_size !== "" && data.area_size !== null ? Number(data.area_size) : null;
+            data.market_value = data.market_value !== "" && data.market_value !== null ? Number(data.market_value) : null;
+            data.boundary_stones = data.boundary_stones !== "" && data.boundary_stones !== null ? parseInt(data.boundary_stones, 10) : null;
+
+            // 3. Clean empty strings ("") to null
+            for (const key in data) {
+                if (typeof data[key] === "string" && data[key].trim() === "") {
+                    data[key] = null;
+                }
+            }
+
+            // 4. Ensure tenant_id is assigned
+            if (!data.user_id) {
+                alert("Please select an Assigned User.");
+                return;
+            }
+            if (!data.tenant_id) {
+                const userSelect = document.getElementById("user_id");
+                const selectedUserOption = userSelect.options[userSelect.selectedIndex];
+                if (selectedUserOption && selectedUserOption.dataset.tenantId) {
+                    data.tenant_id = selectedUserOption.dataset.tenantId;
+                }
+            }
+
+            const propertyId = this.dataset.id;
+            const url = propertyId ? `/properties/${propertyId}` : "/properties";
+            const method = propertyId ? "PUT" : "POST";
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const msgEl = document.getElementById("message");
+                const result = await response.json();
+
+                if (response.ok) {
+                    msgEl.className = "success";
+                    msgEl.innerText = propertyId ? "Property updated successfully." : "Property registered successfully.";
+                    msgEl.style.display = "block";
+                    cancelEdit();
+                    loadProperties();
+                } else {
+                    let errorText = "Operation failed: ";
+                    if (Array.isArray(result.detail)) {
+                        errorText += result.detail.map(e => `${e.loc.join('.')}: ${e.msg}`).join(" | ");
+                    } else {
+                        errorText += result.detail || "Validation Error";
+                    }
+                    msgEl.className = "error";
+                    msgEl.innerText = errorText;
+                    msgEl.style.display = "block";
+                }
+                setTimeout(() => { msgEl.style.display = "none"; }, 7000);
+            } catch (err) {
+                console.error("Network or script error:", err);
+            }
+        });
+
+        function cancelEdit() {
+            const form = document.getElementById("propertyForm");
+            form.reset();
+            form.dataset.id = "";
+            document.getElementById("tenant_id").value = "";
+            document.getElementById("formTitle").innerText = "Register New Property";
+            document.getElementById("submitButton").innerText = "Create Property";
+        }
+
+        function escapeHtml(value) {
+            if (!value) return "";
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        async function initializePage() {
+            await loadUsers();
+            await loadProperties();
+        }
+
+        initializePage();
+    </script>
+</body>
+</html>

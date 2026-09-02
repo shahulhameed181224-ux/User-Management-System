@@ -1,330 +1,911 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body{
-            font-family: Arial;
-            background:#f4f4f4;
-            padding:40px;
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #64748b;
+            --secondary-hover: #475569;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --danger-bg: #fef2f2;
+            --info: #0284c7;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
 
-        .container{
-            width:600px;
-            margin:auto;
-            background:white;
-            padding:25px;
-            border-radius:10px;
-            box-shadow:0 0 10px gray;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        input,select{
-            width:100%;
-            padding:10px;
-            margin:8px 0;
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
-        button{
-            width:100%;
-            padding:12px;
-            background:green;
-            color:white;
-            border:none;
-            font-size:16px;
-            cursor:pointer;
+        .top-navbar {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
         }
 
-        button:hover{
-            background:darkgreen;
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        h2{
-            text-align:center;
+        .nav-links {
+            display: flex;
+            gap: 10px;
         }
 
-        #result{
-            margin-top:20px;
-            color:green;
-            font-weight:bold;
+        button {
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-secondary:hover { background: var(--secondary-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-info { background: var(--info); color: white; }
+        .btn-info:hover { background: #0369a1; }
+        .btn-sm { padding: 6px 10px; font-size: 0.775rem; }
+
+        .card-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 28px;
+        }
+
+        .card-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            background: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        input[readonly] {
+            background-color: #f1f5f9;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .password-note {
+            font-size: 0.775rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .form-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .table-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.775rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-active { background: var(--success-bg); color: var(--success); }
+        .badge-inactive { background: var(--danger-bg); color: var(--danger); }
+        .badge-count { background: #eff6ff; color: var(--primary); font-weight: 700; }
+
+        #result {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: none;
+        }
+        #result.success { display: block; background: var(--success-bg); color: var(--success); }
+        #result.error { display: block; background: var(--danger-bg); color: var(--danger); }
+
+        .summaries-split {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border-radius: 12px;
+            max-width: 650px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .summaries-split { grid-template-columns: 1fr; }
+            .top-navbar { flex-direction: column; gap: 12px; }
         }
     </style>
-
 </head>
-
 <body>
 
-<button onclick="window.location.href='/dashboard'">Dashboard</button>
+    <!-- TOP NAVBAR -->
+    <header class="top-navbar">
+        <div class="brand-title">
+            👥 User Management
+        </div>
+        <div class="nav-links">
+            <button class="btn-outline" onclick="window.location.href='/dashboard'">Dashboard</button>
+            <button class="btn-outline" onclick="window.location.href='/properties-page'">Properties</button>
+            <button class="btn-outline" onclick="window.location.href='/documents-page'">Documents</button>
+            <button class="btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </header>
 
-<button onclick="logout()">
-Logout
-</button>
+    <!-- USER FORM -->
+    <div class="card-container">
+        <div class="card-header">
+            <h2 id="formTitle">Create New User</h2>
+        </div>
 
-<div class="container">
+        <form id="userForm">
+            <!-- Hidden Tenant ID to hold value in background without showing in UI -->
+            <input type="hidden" name="tenant_id" id="tenant_id">
 
-<h2>Create User</h2>
+            <div class="form-grid">
+                <!-- USER IDENTIFICATION & CORE INFO -->
+                <div class="form-group" id="userIdGroup" style="display: none;">
+                    <label>User ID</label>
+                    <input type="text" name="user_id_display" id="user_id_display" readonly>
+                </div>
 
-<form id="userForm">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" name="full_name" placeholder="John Doe" required>
+                </div>
 
-<input type="text"
-name="full_name"
-placeholder="Full Name"
-required>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" name="email_id" placeholder="john@example.com" required>
+                </div>
 
-<input type="text"
-name="phone_number"
-placeholder="Phone Number"
-required>
+                <div class="form-group">
+                    <label>Phone Number *</label>
+                    <input type="text" name="phone_number" placeholder="+919876543210" required>
+                </div>
 
-<input type="email"
-name="email_id"
-placeholder="Email">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="••••••••">
+                    <span class="password-note">Required for new users; leave empty when editing.</span>
+                </div>
 
-<input type="password"
-name="password"
-placeholder="Password"
-required>
+                <!-- CUSTOM ROLE INPUT -->
+                <div class="form-group">
+                    <label>Role *</label>
+                    <input type="text" name="role" placeholder="e.g. Lead Engineer, Auditor, Manager" required>
+                </div>
 
-<input type="text"
-name="role"
-placeholder="Role">
+                <div class="form-group">
+                    <label>Account Status *</label>
+                    <select name="is_active">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
 
-<input type="text"
-name="tenant_name"
-placeholder="Tenant Name">
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" name="dob">
+                </div>
 
-<input type="text"
-name="address"
-placeholder="Address">
+                <!-- TENANT DETAILS (Without Tenant ID Input) -->
+                <div class="form-group">
+                    <label>Tenant Name *</label>
+                    <input type="text" name="tenant_name" placeholder="Enter Tenant Name" required>
+                </div>
 
-<input type="date"
-name="dob">
+                <div class="form-group">
+                    <label>Tenant Type</label>
+                    <select name="tenant_type">
+                        <option value="">Select Type</option>
+                        <option value="INDIVIDUAL">INDIVIDUAL</option>
+                        <option value="COMMERCIAL">COMMERCIAL</option>
+                        <option value="ENTERPRISE">ENTERPRISE</option>
+                    </select>
+                </div>
 
-<input type="text"
-name="bio_details"
-placeholder="Bio">
+                <div class="form-group">
+                    <label>Tenant Created By</label>
+                    <input type="text" name="tenant_created_by" placeholder="Tenant creator name">
+                </div>
 
-<input type="text"
-name="created_by"
-placeholder="Created By">
+                <div class="form-group">
+                    <label>Tenant Updated By</label>
+                    <input type="text" name="tenant_updated_by" placeholder="Tenant updater name">
+                </div>
 
-<input type="text"
-name="updated_by"
-placeholder="Updated By">
+                <!-- USER AUDIT DETAILS -->
+                <div class="form-group">
+                    <label>Created By *</label>
+                    <input type="text" name="created_by" placeholder="Admin username" required>
+                </div>
 
-<button type="submit">
-Create User
-</button>
+                <div class="form-group">
+                    <label>Updated By</label>
+                    <input type="text" name="updated_by" placeholder="Admin username">
+                </div>
 
-</form>
+                <!-- FULL-WIDTH TEXT FIELDS -->
+                <div class="form-group full">
+                    <label>Address</label>
+                    <textarea name="address" placeholder="Physical street address"></textarea>
+                </div>
 
-<div id="result"></div>
+                <div class="form-group full">
+                    <label>Bio Details</label>
+                    <textarea name="bio_details" placeholder="Additional user notes or profile bio"></textarea>
+                </div>
+            </div>
 
-</div>
+            <div class="form-actions">
+                <button type="button" class="btn-outline" id="cancelButton" style="display: none;" onclick="cancelEdit()">Cancel Edit</button>
+                <button type="submit" class="btn-primary" id="submitButton">Create User</button>
+            </div>
+        </form>
+        <div id="result"></div>
+    </div>
 
-<hr>
+    <!-- USERS TABLE -->
+    <div class="table-section">
+        <div class="card-header">
+            <h2>All Users</h2>
+            <button class="btn-outline btn-sm" onclick="loadUsers()">🔄 Refresh Users</button>
+        </div>
 
-<h2>All Users</h2>
+        <div class="table-wrapper">
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>DOB</th>
+                        <th>Address</th>
+                        <th>Bio Details</th>
+                        <th>Tenant ID</th>
+                        <th>Tenant Name</th>
+                        <th>Tenant Type</th>
+                        <th>Tenant Created By</th>
+                        <th>Tenant Updated By</th>
+                        <th>Created By</th>
+                        <th>Updated By</th>
+                        <th>Created At</th>
+                        <th>Updated At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
-<table border="1" width="100%" id="userTable">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Tenant</th>
-            <th>Address</th>
-            <th>Date of Birth</th>
-            <th>Bio</th>
-            <th>Created By</th>
-            <th>Updated By</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+    <!-- SUMMARIES ROW -->
+    <div class="summaries-split">
+        <div class="table-section">
+            <div class="card-header">
+                <h2>Tenant Summary</h2>
+                <button class="btn-outline btn-sm" onclick="loadTenantSummary()">🔄 Refresh</button>
+            </div>
+            <div class="table-wrapper">
+                <table id="tenantSummaryTable">
+                    <thead>
+                        <tr>
+                            <th>Tenant Name</th>
+                            <th>Total Users</th>
+                            <th>Properties</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
 
-    <tbody>
+        <div class="table-section">
+            <div class="card-header">
+                <h2>User Property Aggregations</h2>
+                <button class="btn-outline btn-sm" onclick="loadUserPropertyCounts()">🔄 Refresh</button>
+            </div>
+            <div class="table-wrapper">
+                <table id="userPropertyCountTable">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Tenant Name</th>
+                            <th>Total Properties</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    </tbody>
-</table>
+    <!-- USER PROPERTIES MODAL -->
+    <div id="propertyModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalUserName">User Properties</h3>
+                <button class="btn-outline btn-sm" onclick="closePropertyModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalPropertyContent"></div>
+        </div>
+    </div>
 
-<script>
-
-const token = localStorage.getItem("access_token");
-
-if(!token){
-    window.location.href = "/login";
-}
-
- async function loadUsers(){
-
-    const token = localStorage.getItem("access_token");
-    const response = await fetch("/users", {
-        headers: {
-            "Authorization": "Bearer " + token
+    <script>
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            window.location.href = "/login";
         }
-    });
 
-    const users = await response.json();
+        // Generate RFC4122 UUID v4
+        function generateUUID() {
+            if (crypto && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
 
-    const tbody = document.querySelector("#userTable tbody");
+        // LOAD USERS
+        async function loadUsers() {
+            try {
+                const response = await fetch("/users", {
+                    method: "GET",
+                    headers: { "Authorization": "Bearer " + token }
+                });
 
-    tbody.innerHTML = "";
+                if (response.status === 401) return logout();
+                const result = await response.json();
 
-    users.forEach(user=>{
+                if (!response.ok || !Array.isArray(result)) {
+                    showError(result.detail || "Failed to load users.");
+                    return;
+                }
 
-        tbody.innerHTML += `
-        <tr>
-            <td>${user.full_name}</td>
-            <td>${user.phone_number}</td>
-            <td>${user.email_id ?? ""}</td>
-            <td>${user.role}</td>
-            <td>${user.tenant_name ?? ""}</td>
-            <td>${user.address ?? ""}</td>
-            <td>${user.dob ?? ""}</td>
-            <td>${user.bio_details ?? ""}</td>
-            <td>${user.created_by}</td>
-            <td>${user.updated_by ?? ""}</td>
-            <td>${user.is_active}</td>
+                const tbody = document.querySelector("#userTable tbody");
+                tbody.innerHTML = "";
 
-            <td>
-                <button onclick="editUser('${user.id}')">Edit</button>
+                result.forEach(user => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><code>${escapeHtml(user.id || "")}</code></td>
+                        <td><strong>${escapeHtml(user.full_name || "")}</strong></td>
+                        <td>${escapeHtml(user.email_id || "")}</td>
+                        <td>${escapeHtml(user.phone_number || "")}</td>
+                        <td><span class="badge" style="background:#f1f5f9; color:#475569;">${escapeHtml(user.role || "")}</span></td>
+                        <td>
+                            <span class="badge ${user.is_active ? 'badge-active' : 'badge-inactive'}">
+                                ${user.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>${user.dob || "-"}</td>
+                        <td>${escapeHtml(user.address || "-")}</td>
+                        <td>${escapeHtml(user.bio_details || "-")}</td>
+                        <td><code>${escapeHtml(user.tenant_id || "-")}</code></td>
+                        <td>${escapeHtml(user.tenant_name || "No Tenant")}</td>
+                        <td>${escapeHtml(user.tenant_type || "-")}</td>
+                        <td>${escapeHtml(user.tenant_created_by || "-")}</td>
+                        <td>${escapeHtml(user.tenant_updated_by || "-")}</td>
+                        <td>${escapeHtml(user.created_by || "-")}</td>
+                        <td>${escapeHtml(user.updated_by || "-")}</td>
+                        <td>${formatDateTime(user.created_at)}</td>
+                        <td>${formatDateTime(user.updated_at)}</td>
+                        <td>
+                            <button class="btn-info btn-sm" onclick="showUserProperties('${user.id}')">Properties</button>
+                            <button class="btn-outline btn-sm" onclick="editUser('${user.id}')">Edit</button>
+                            <button class="btn-danger btn-sm" onclick="deleteUser('${user.id}')">Delete</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Load users error:", error);
+                showError("Unable to connect to server.");
+            }
+        }
 
-                <button onclick="deleteUser('${user.id}')">Delete</button>
-            </td>
-        </tr>
-        `;
+        function formatDateTime(value) {
+            if (!value) return "-";
+            try {
+                const date = new Date(value);
+                return isNaN(date.getTime()) ? value : date.toLocaleDateString();
+            } catch (e) {
+                return value;
+            }
+        }
 
-    });
+        // CREATE / UPDATE USER
+        document.getElementById("userForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const form = new FormData(this);
+            const id = this.dataset.id;
+            const password = form.get("password");
 
-}
+            if (!id && !password) {
+                showError("Password is required when creating a user.");
+                return;
+            }
 
-async function deleteUser(userId){
+            // Auto-generate tenant_id in background if none exists
+            let tenantId = form.get("tenant_id");
+            if (!tenantId || tenantId.trim() === "") {
+                tenantId = generateUUID();
+            }
 
-    if(confirm("Are you sure you want to delete this user?")){
+            const data = {
+                full_name: form.get("full_name"),
+                phone_number: form.get("phone_number"),
+                email_id: form.get("email_id"),
+                password: password || "",
+                role: form.get("role"),
+                is_active: form.get("is_active") === "true",
+                dob: form.get("dob") || null,
+                address: form.get("address") || null,
+                bio_details: form.get("bio_details") || null,
 
-        const response = await fetch(`/users/${userId}`,{
-            method:"DELETE",
-            headers:{
-                "Authorization":"Bearer "+token
+                tenant_id: tenantId,
+                tenant_name: form.get("tenant_name"),
+                tenant_type: form.get("tenant_type") || null,
+                tenant_created_by: form.get("tenant_created_by") || null,
+                tenant_updated_by: form.get("tenant_updated_by") || null,
+
+                created_by: form.get("created_by"),
+                updated_by: form.get("updated_by") || null
+            };
+
+            const url = id ? `/users/${id}` : "/users";
+            const method = id ? "PUT" : "POST";
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    showError(result.detail || "Operation failed.");
+                    return;
+                }
+
+                showSuccess(id ? "User updated successfully." : "User created successfully.");
+                resetForm();
+                await loadUsers();
+                await loadTenantSummary();
+                await loadUserPropertyCounts();
+            } catch (error) {
+                console.error(error);
+                showError("Unable to connect to server.");
             }
         });
 
-        const result = await response.json();
+        // EDIT USER
+        async function editUser(id) {
+            try {
+                const response = await fetch(`/users/${id}`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
 
-        alert(result.message);
+                if (response.status === 401) return logout();
+                const user = await response.json();
+                if (!response.ok) return showError(user.detail || "Unable to load user.");
 
-        loadUsers();
-    }
+                const form = document.getElementById("userForm");
+                
+                document.getElementById("userIdGroup").style.display = "flex";
+                form.elements["user_id_display"].value = user.id || "";
 
-}
+                form.elements["full_name"].value = user.full_name || "";
+                form.elements["phone_number"].value = user.phone_number || "";
+                form.elements["email_id"].value = user.email_id || "";
+                form.elements["password"].value = "";
+                form.elements["role"].value = user.role || "";
+                form.elements["is_active"].value = user.is_active ? "true" : "false";
+                form.elements["dob"].value = user.dob || "";
+                form.elements["address"].value = user.address || "";
+                form.elements["bio_details"].value = user.bio_details || "";
 
-// Logout function
-function logout(){
-    localStorage.removeItem("access_token");
-    window.location.href = "/login";
-}
+                // Hidden field stores the tenant_id silently
+                form.elements["tenant_id"].value = user.tenant_id || "";
+                form.elements["tenant_name"].value = user.tenant_name || "";
+                form.elements["tenant_type"].value = user.tenant_type || "";
+                form.elements["tenant_created_by"].value = user.tenant_created_by || "";
+                form.elements["tenant_updated_by"].value = user.tenant_updated_by || "";
 
-// Edit User function
-async function editUser(id){
+                form.elements["created_by"].value = user.created_by || "";
+                form.elements["updated_by"].value = user.updated_by || "";
 
-    const response = await fetch("/users/"+id, {
-        headers: {
-            "Authorization": "Bearer " + token
+                form.dataset.id = id;
+                document.getElementById("formTitle").innerText = "Edit User: " + (user.full_name || "");
+                document.getElementById("submitButton").innerText = "Update User";
+                document.getElementById("cancelButton").style.display = "inline-flex";
+
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } catch (error) {
+                showError("Unable to load user.");
+            }
         }
-    });
 
-    const user = await response.json();
+        // DELETE USER
+        async function deleteUser(id) {
+            if (!confirm("Are you sure you want to delete this user?")) return;
 
-    document.querySelector("[name='full_name']").value=user.full_name;
+            try {
+                const response = await fetch(`/users/${id}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": "Bearer " + token }
+                });
 
-    document.querySelector("[name='phone_number']").value=user.phone_number;
+                if (response.status === 401) return logout();
+                const result = await response.json();
 
-    document.querySelector("[name='email_id']").value=user.email_id;
+                if (!response.ok) return showError(result.detail || "Unable to delete user.");
 
-    document.querySelector("[name='role']").value=user.role;
+                showSuccess("User deleted successfully.");
+                await loadUsers();
+                await loadTenantSummary();
+                await loadUserPropertyCounts();
+            } catch (error) {
+                showError("Unable to connect to server.");
+            }
+        }
 
-    document.querySelector("[name='tenant_name']").value=user.tenant_name;
+        function cancelEdit() {
+            resetForm();
+        }
 
-    document.querySelector("[name='address']").value=user.address;
+        function resetForm() {
+            const form = document.getElementById("userForm");
+            form.reset();
+            form.dataset.id = "";
+            document.getElementById("userIdGroup").style.display = "none";
+            document.getElementById("formTitle").innerText = "Create New User";
+            document.getElementById("submitButton").innerText = "Create User";
+            document.getElementById("cancelButton").style.display = "none";
+            form.elements["is_active"].value = "true";
+            
+            // Assign a fresh auto-generated tenant ID in the background
+            form.elements["tenant_id"].value = generateUUID();
+        }
 
-    document.querySelector("[name='bio_details']").value=user.bio_details;
+        function logout() {
+            localStorage.removeItem("access_token");
+            window.location.href = "/login";
+        }
 
-    document.querySelector("[name='created_by']").value=user.created_by;
+        function showSuccess(message) {
+            const result = document.getElementById("result");
+            result.className = "success";
+            result.innerText = message;
+            setTimeout(() => { result.style.display = "none"; }, 4000);
+        }
 
-    document.querySelector("[name='updated_by']").value=user.updated_by;
+        function showError(message) {
+            const result = document.getElementById("result");
+            result.className = "error";
+            result.innerText = message;
+            setTimeout(() => { result.style.display = "none"; }, 5000);
+        }
 
-    document.getElementById("userForm").dataset.id=id;
+        function escapeHtml(value) {
+            if (value === null || value === undefined) return "";
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
 
-    document.querySelector("#userForm button").innerText = "Update User";
+        // SHOW USER PROPERTIES
+        async function showUserProperties(userId) {
+            try {
+                const response = await fetch(`/users/${userId}/properties`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
 
-}
+                const result = await response.json();
+                if (!response.ok) return alert(result.detail || "Unable to load properties");
 
-loadUsers();
+                document.getElementById("modalUserName").innerText = `${result.user_name} (${result.tenant_name || "No Tenant"})`;
+                const content = document.getElementById("modalPropertyContent");
 
-document.getElementById("userForm").addEventListener("submit",async function(e){
+                if (!result.properties || result.properties.length === 0) {
+                    content.innerHTML = "<p style='color: var(--text-muted);'>This user currently has no assigned properties.</p>";
+                } else {
+                    let html = `<p style='margin-bottom:12px;'><strong>Total Assigned:</strong> ${result.property_count}</p>`;
+                    html += `<table style='margin-top:8px;'><thead><tr><th>Property Code</th><th>Name</th><th>Location</th></tr></thead><tbody>`;
+                    result.properties.forEach(prop => {
+                        html += `<tr>
+                            <td><code>${escapeHtml(prop.property_code)}</code></td>
+                            <td><strong>${escapeHtml(prop.property_name)}</strong></td>
+                            <td>${escapeHtml(prop.property_location || "N/A")}</td>
+                        </tr>`;
+                    });
+                    html += `</tbody></table>`;
+                    content.innerHTML = html;
+                }
 
-e.preventDefault();
+                document.getElementById("propertyModal").style.display = "flex";
+            } catch (error) {
+                alert("Error loading user properties.");
+            }
+        }
 
-const form=new FormData(this);
+        function closePropertyModal() {
+            document.getElementById("propertyModal").style.display = "none";
+        }
 
-const data={
+        // LOAD TENANT SUMMARY
+        async function loadTenantSummary() {
+            try {
+                const response = await fetch("/tenant-summary", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
 
-full_name:form.get("full_name"),
-phone_number:form.get("phone_number"),
-email_id:form.get("email_id"),
-password:form.get("password"),
-role:form.get("role"),
-tenant_name:form.get("tenant_name"),
-address:form.get("address"),
-dob:form.get("dob"),
-bio_details:form.get("bio_details"),
-created_by:form.get("created_by"),
-updated_by:form.get("updated_by"),
-is_active:true
+                if (response.status === 401) return logout();
+                const tenants = await response.json();
+                if (!response.ok) return;
 
-};
+                const tbody = document.querySelector("#tenantSummaryTable tbody");
+                tbody.innerHTML = "";
 
-let id = document.getElementById("userForm").dataset.id;
+                tenants.forEach(tenant => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${escapeHtml(tenant.tenant_name || "")}</strong></td>
+                            <td><span class="badge badge-count">${tenant.user_count ?? 0}</span></td>
+                            <td><span class="badge badge-count">${tenant.property_count ?? 0}</span></td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("Tenant summary error:", error);
+            }
+        }
 
-let url = "/users";
-let method = "POST";
+        // LOAD USER PROPERTY COUNTS
+        async function loadUserPropertyCounts() {
+            try {
+                const response = await fetch("/user-property-counts", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
 
-if (id) {
-    url = "/users/" + id;
-    method = "PUT";
-}
+                if (response.status === 401) return logout();
+                const result = await response.json();
+                if (!response.ok) return;
 
-const response = await fetch(url, {
-    method: method,
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-    },
-    body: JSON.stringify(data)
-});
+                const tbody = document.querySelector("#userPropertyCountTable tbody");
+                tbody.innerHTML = "";
 
-const result=await response.json();
+                result.forEach(user => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${escapeHtml(user.user_name || "")}</strong></td>
+                            <td>${escapeHtml(user.tenant_name || "N/A")}</td>
+                            <td><span class="badge badge-count">${user.property_count ?? 0}</span></td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("User property count error:", error);
+            }
+        }
 
-document.getElementById("result").innerHTML=
-JSON.stringify(result,null,2);
-
-// Clear the form
-document.getElementById("userForm").reset();
-
-//Exit edit mode
-document.getElementById("userForm").dataset.id = "";
-
-//Change button text back
-document.querySelector("#userForm button").innerText = "Create User";
-
-//Reload the Table
-loadUsers();
-
-});
-
-</script>
-
+        document.addEventListener("DOMContentLoaded", () => {
+            resetForm();
+            loadUsers();
+            loadTenantSummary();
+            loadUserPropertyCounts();
+        });
+    </script>
 </body>
 </html>

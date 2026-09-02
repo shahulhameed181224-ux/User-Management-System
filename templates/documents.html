@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Document Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #64748b;
+            --secondary-hover: #475569;
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --danger-bg: #fef2f2;
+            --info: #0284c7;
+            --info-hover: #0369a1;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        .top-navbar {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-secondary:hover { background: var(--secondary-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-info { background: var(--info); color: white; }
+        .btn-info:hover { background: var(--info-hover); }
+        .btn-sm { padding: 6px 10px; font-size: 0.775rem; }
+
+        /* Main Workspace Layout */
+        .workspace {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+            align-items: flex-start;
+        }
+
+        /* Sidebar Property Selector */
+        .sidebar-card {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 34px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.875rem;
+            outline: none;
+            background: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .property-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 650px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .property-card {
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .property-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+
+        .property-card.active {
+            border-color: var(--primary);
+            background: #eff6ff;
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .property-code {
+            font-family: monospace;
+            font-size: 0.75rem;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .property-card.active .property-code {
+            background: #dbeafe;
+            color: var(--primary);
+        }
+
+        .property-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .property-location {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Document Workspace Area */
+        .workspace-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .empty-placeholder {
+            background: var(--surface);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 60px 24px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .content-card {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+        }
+
+        .card-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-heading h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .property-submeta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Layout Plan Frame */
+        .layout-plan-container {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 380px;
+        }
+
+        .layout-plan-frame {
+            width: 100%;
+            height: 420px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        /* Tables */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        th {
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.775rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #f8fafc; }
+
+        /* Document Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-type { background: #eff6ff; color: var(--primary); }
+        .badge-layout { background: #ecfdf5; color: #059669; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border-radius: 12px;
+            max-width: 780px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            background: var(--surface);
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 0.875rem;
+            background: #ffffff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        select:focus, input[type="file"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .pdf-preview {
+            width: 100%;
+            height: 320px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-top: 8px;
+            background: #ffffff;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        @media (max-width: 900px) {
+            .workspace { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .top-navbar { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-navbar">
+        <div class="brand-title">
+            📑 Document Center
+        </div>
+        <div class="nav-links">
+            <button class="btn-outline" onclick="window.location.href='/dashboard'">Dashboard</button>
+            <button class="btn-outline" onclick="window.location.href='/users-page'">Users</button>
+            <button class="btn-outline" onclick="window.location.href='/properties-page'">Properties</button>
+            <button class="btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="workspace">
+        
+        <div class="sidebar-card">
+            <div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">Properties</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Choose a property to inspect documents</p>
+            </div>
+
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search by name or code..." oninput="filterProperties()">
+            </div>
+
+            <div class="property-list" id="propertyCards">
+                <p style="color: var(--text-muted); font-size: 0.85rem;">Loading properties...</p>
+            </div>
+        </div>
+
+        <div class="workspace-content">
+            
+            <div id="noSelectionNotice" class="empty-placeholder">
+                <div class="empty-icon">📁</div>
+                <h3 style="font-size: 1.25rem; font-weight: 600;">No Property Selected</h3>
+                <p style="margin-top: 6px;">Select a property from the sidebar list to inspect attached PDF documents or upload new files.</p>
+            </div>
+
+            <div id="propertySection" style="display: none; flex-direction: column; gap: 24px;">
+                
+                <div class="content-card">
+                    <div class="card-heading">
+                        <div>
+                            <h2 id="selectedPropertyTitle">Property Overview</h2>
+                            <p id="selectedPropertyMeta" class="property-submeta"></p>
+                        </div>
+                        <button class="btn-primary" onclick="openUploadModal()">+ Upload PDF Document</button>
+                    </div>
+
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 8px;">Master Layout Plan</h3>
+                    <div class="layout-plan-container" id="layoutPlanBox">
+                        <div id="noLayoutMsg" style="text-align: center; color: var(--text-muted);">
+                            <div style="font-size: 2rem; margin-bottom: 6px;">📐</div>
+                            <p>No master layout plan uploaded for this property yet.</p>
+                        </div>
+                        <iframe id="layoutPlanFrame" class="layout-plan-frame" style="display: none;"></iframe>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-heading">
+                        <h2>All Attached Verified Documents</h2>
+                        <button class="btn-outline btn-sm" onclick="loadPropertyDocuments(selectedProperty.property_code)">🔄 Refresh Records</button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Doc ID</th>
+                                    <th>Document Type</th>
+                                    <th>Uploaded By</th>
+                                    <th>Uploaded Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="documentsTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="uploadModal" class="modal-overlay">
+        <div class="modal-box">
+            
+            <div class="modal-header">
+                <h3 style="font-size: 1.15rem; font-weight: 700;">Upload & Verify PDF Document</h3>
+                <button type="button" class="btn-outline btn-sm" onclick="closeUploadModal()">✕</button>
+            </div>
+
+            <form id="documentUploadForm" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+                
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Document Type *</label>
+                            <select id="docType" name="document_type" required>
+                                <option value="">Select Document Type</option>
+                                <option value="PATTA">Patta</option>
+                                <option value="SALE_DEED">Sale Deed</option>
+                                <option value="EC">Encumbrance Certificate (EC)</option>
+                                <option value="LAYOUT_PLAN">Master Layout Plan</option>
+                                <option value="SETTLEMENT_DEED">Settlement Deed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Select PDF File (Max 15MB) *</label>
+                            <input type="file" id="pdfFileInput" accept="application/pdf" required onchange="handleFileSelection(event)">
+                        </div>
+                    </div>
+
+                    <div id="previewContainer" style="display: none;">
+                        <label style="font-weight: 600; font-size: 0.85rem;">Document Live Review:</label>
+                        <p style="font-size: 0.775rem; color: var(--text-muted); margin-bottom: 6px;">Verify that the selected file is clear and readable before committing.</p>
+                        <iframe id="pdfPreviewFrame" class="pdf-preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeUploadModal()">Cancel</button>
+                    <button type="button" id="reUploadBtn" class="btn-secondary" style="display: none;" onclick="triggerReupload()">Change File</button>
+                    <button type="submit" id="submitDocBtn" class="btn-primary" style="display: none;">Confirm & Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            window.location.href = "/login";
+        }
+
+        function logout() {
+            localStorage.removeItem("access_token");
+            window.location.href = "/login";
+        }
+
+        let allProperties = [];
+        let selectedProperty = null;
+        let currentPreviewBlobUrl = null;
+
+        // 1. Fetch properties
+        async function loadProperties() {
+            const container = document.getElementById("propertyCards");
+            try {
+                const response = await fetch("/properties", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (response.status === 401) return logout();
+                allProperties = await response.json();
+
+                renderPropertyList(allProperties);
+
+                // Deep linking check via ?code=...
+                const urlParams = new URLSearchParams(window.location.search);
+                const preselectedCode = urlParams.get("code");
+                if (preselectedCode) {
+                    const match = allProperties.find(p => p.property_code === preselectedCode);
+                    if (match) selectProperty(match);
+                }
+            } catch (err) {
+                console.error("loadProperties error:", err);
+                container.innerHTML = "<p style='color:var(--danger); font-size:0.85rem;'>Unable to load properties.</p>";
+            }
+        }
+
+        function renderPropertyList(properties) {
+            const container = document.getElementById("propertyCards");
+            container.innerHTML = "";
+
+            if (!properties || properties.length === 0) {
+                container.innerHTML = "<p style='color:var(--text-muted); font-size:0.85rem;'>No properties found.</p>";
+                return;
+            }
+
+            properties.forEach(prop => {
+                const card = document.createElement("div");
+                card.className = "property-card";
+                card.id = `card-${prop.property_code}`;
+                if (selectedProperty && selectedProperty.property_code === prop.property_code) {
+                    card.classList.add("active");
+                }
+                card.innerHTML = `
+                    <div class="card-header-row">
+                        <span class="property-code">${escapeHtml(prop.property_code)}</span>
+                    </div>
+                    <div class="property-name">${escapeHtml(prop.property_name)}</div>
+                    <div class="property-location">📍 ${escapeHtml(prop.property_location || "Location not specified")}</div>
+                `;
+                card.onclick = () => selectProperty(prop);
+                container.appendChild(card);
+            });
+        }
+
+        function filterProperties() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = allProperties.filter(p => 
+                (p.property_name && p.property_name.toLowerCase().includes(query)) ||
+                (p.property_code && p.property_code.toLowerCase().includes(query)) ||
+                (p.property_location && p.property_location.toLowerCase().includes(query))
+            );
+            renderPropertyList(filtered);
+        }
+
+        // 2. Select Property & View Info
+        async function selectProperty(property) {
+            selectedProperty = property;
+
+            document.querySelectorAll(".property-card").forEach(c => c.classList.remove("active"));
+            const activeCard = document.getElementById(`card-${property.property_code}`);
+            if (activeCard) activeCard.classList.add("active");
+
+            document.getElementById("noSelectionNotice").style.display = "none";
+            const section = document.getElementById("propertySection");
+            section.style.display = "flex";
+
+            document.getElementById("selectedPropertyTitle").innerText = property.property_name;
+            document.getElementById("selectedPropertyMeta").innerText = 
+                `Property Code: ${property.property_code} • Location: ${property.property_location || "N/A"} • Tenant: ${property.tenant_name || "N/A"}`;
+
+            loadPropertyDocuments(property.property_code);
+        }
+
+        // 3. Load Documents for Selected Property
+        async function loadPropertyDocuments(propertyCode) {
+            const tableBody = document.getElementById("documentsTableBody");
+            tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:var(--text-muted);'>Loading documents...</td></tr>";
+
+            try {
+                const response = await fetch(`/documents/by-property/${propertyCode}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                
+                let docs = [];
+                if (response.ok) {
+                    docs = await response.json();
+                }
+
+                tableBody.innerHTML = "";
+                let layoutPlanFound = false;
+
+                docs.forEach(doc => {
+                    const isLayout = doc.document_type === "LAYOUT_PLAN";
+
+                    if (isLayout && !layoutPlanFound) {
+                        const layoutFrame = document.getElementById("layoutPlanFrame");
+                        layoutFrame.src = doc.path_url;
+                        layoutFrame.style.display = "block";
+                        document.getElementById("noLayoutMsg").style.display = "none";
+                        layoutPlanFound = true;
+                    }
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><code>#${doc.id}</code></td>
+                        <td>
+                            <span class="badge ${isLayout ? 'badge-layout' : 'badge-type'}">
+                                ${escapeHtml(doc.document_type)}
+                            </span>
+                        </td>
+                        <td>${escapeHtml(doc.created_by || "Admin")}</td>
+                        <td>${new Date(doc.created_at || Date.now()).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn-info btn-sm" onclick="window.open('${doc.path_url}', '_blank')">View</button>
+                            <a href="${doc.path_url}" download class="btn-outline btn-sm" style="text-decoration: none;">Download</a>
+                            <button class="btn-danger btn-sm" onclick="deleteDocument(${doc.id})">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                if (!layoutPlanFound) {
+                    document.getElementById("layoutPlanFrame").style.display = "none";
+                    document.getElementById("noLayoutMsg").style.display = "block";
+                }
+
+                if (docs.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:var(--text-muted);'>No document files attached yet.</td></tr>";
+                }
+            } catch (err) {
+                tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:var(--danger);'>Failed to retrieve documents.</td></tr>";
+            }
+        }
+
+        // 4. Modal Management & PDF Preview Verification
+        function openUploadModal() {
+            if (!selectedProperty) {
+                alert("Please select a property first.");
+                return;
+            }
+            document.getElementById("uploadModal").style.display = "flex";
+        }
+
+        function closeUploadModal() {
+            document.getElementById("uploadModal").style.display = "none";
+            document.getElementById("documentUploadForm").reset();
+            document.getElementById("previewContainer").style.display = "none";
+            document.getElementById("submitDocBtn").style.display = "none";
+            document.getElementById("reUploadBtn").style.display = "none";
+            if (currentPreviewBlobUrl) {
+                URL.revokeObjectURL(currentPreviewBlobUrl);
+                currentPreviewBlobUrl = null;
+            }
+        }
+
+        function handleFileSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+                alert("Invalid file format. Only PDF documents (.pdf) are allowed.");
+                event.target.value = "";
+                return;
+            }
+
+            if (currentPreviewBlobUrl) URL.revokeObjectURL(currentPreviewBlobUrl);
+            currentPreviewBlobUrl = URL.createObjectURL(file);
+
+            document.getElementById("pdfPreviewFrame").src = currentPreviewBlobUrl;
+            document.getElementById("previewContainer").style.display = "block";
+            document.getElementById("submitDocBtn").style.display = "inline-flex";
+            document.getElementById("reUploadBtn").style.display = "inline-flex";
+        }
+
+        function triggerReupload() {
+            document.getElementById("pdfFileInput").value = "";
+            document.getElementById("previewContainer").style.display = "none";
+            document.getElementById("submitDocBtn").style.display = "none";
+            document.getElementById("reUploadBtn").style.display = "none";
+            document.getElementById("pdfFileInput").click();
+        }
+
+        // 5. Submit Document Upload
+        document.getElementById("documentUploadForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const fileInput = document.getElementById("pdfFileInput");
+            const docType = document.getElementById("docType").value;
+
+            if (!fileInput.files[0]) {
+                alert("Please select a PDF document.");
+                return;
+            }
+
+            const submitBtn = document.getElementById("submitDocBtn");
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Uploading...";
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("property_code", selectedProperty.property_code);
+            formData.append("property_address", selectedProperty.property_location || "");
+            formData.append("document_type", docType);
+
+            try {
+                const response = await fetch("/documents/upload", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || "Upload failed");
+                }
+
+                closeUploadModal();
+                loadPropertyDocuments(selectedProperty.property_code);
+            } catch (err) {
+                alert("Error uploading document: " + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Confirm & Submit";
+            }
+        });
+
+        // 6. Delete Document
+        async function deleteDocument(docId) {
+            if (!confirm("Are you sure you want to permanently delete this document record?")) return;
+
+            try {
+                const response = await fetch(`/documents/${docId}`, {
+                    method: "DELETE",
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    loadPropertyDocuments(selectedProperty.property_code);
+                } else {
+                    const err = await response.json();
+                    alert(err.detail || "Unable to delete document");
+                }
+            } catch (err) {
+                alert("Server error while deleting document.");
+            }
+        }
+
+        function escapeHtml(value) {
+            if (!value) return "";
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialize on page load
+        loadProperties();
+    </script>
+</body>
+</html>
