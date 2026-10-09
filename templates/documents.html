@@ -405,7 +405,7 @@
             color: var(--text-main);
         }
 
-        select, input[type="file"] {
+        select, input[type="file"], input[type="text"] {
             width: 100%;
             padding: 10px 12px;
             border-radius: 6px;
@@ -416,7 +416,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        select:focus, input[type="file"]:focus {
+        select:focus, input[type="file"]:focus, input[type="text"]:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
@@ -539,6 +539,7 @@
 
     </div>
 
+    <!-- DOCUMENT UPLOAD MODAL -->
     <div id="uploadModal" class="modal-overlay">
         <div class="modal-box">
             
@@ -585,6 +586,30 @@
         </div>
     </div>
 
+    <!-- PHONE NUMBER VERIFICATION GATEWAY MODAL -->
+    <div id="verifyModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 440px;">
+            <div class="modal-header">
+                <h3 style="font-size: 1.15rem; font-weight: 700;">🔒 Security Verification</h3>
+                <button type="button" class="btn-outline btn-sm" onclick="closeVerifyModal()">✕</button>
+            </div>
+            <div class="modal-body" style="gap: 12px;">
+                <p style="font-size: 0.875rem; color: var(--text-muted);">
+                    This document is password protected. Enter the registered user's phone number to verify and unlock the file.
+                </p>
+                <div class="form-group">
+                    <label>Owner Phone Number *</label>
+                    <input type="text" id="verify_phone_input" placeholder="+919876543210" autocomplete="off">
+                </div>
+                <div id="verifyError" style="display: none; padding: 10px; border-radius: 6px; font-size: 0.825rem; font-weight: 500; background: var(--danger-bg); color: var(--danger); border: 1px solid #fecaca;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-outline" onclick="closeVerifyModal()">Cancel</button>
+                <button type="button" class="btn-primary" id="btnConfirmVerify" onclick="submitPhoneVerification()">Verify & Open</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const token = localStorage.getItem("access_token");
         if (!token) {
@@ -599,6 +624,7 @@
         let allProperties = [];
         let selectedProperty = null;
         let currentPreviewBlobUrl = null;
+        let currentDocIdToVerify = null;
 
         // 1. Fetch properties
         async function loadProperties() {
@@ -723,7 +749,7 @@
                         <td>${escapeHtml(doc.created_by || "Admin")}</td>
                         <td>${new Date(doc.created_at || Date.now()).toLocaleDateString()}</td>
                         <td>
-                            <button class="btn-info btn-sm" onclick="window.open('${doc.path_url}', '_blank')">View</button>
+                            <button class="btn-info btn-sm" onclick="openVerifyModal(${doc.id})">View</button>
                             <a href="${doc.path_url}" download class="btn-outline btn-sm" style="text-decoration: none;">Download</a>
                             <button class="btn-danger btn-sm" onclick="deleteDocument(${doc.id})">Delete</button>
                         </td>
@@ -854,6 +880,73 @@
                 }
             } catch (err) {
                 alert("Server error while deleting document.");
+            }
+        }
+
+        // 7. Verification Gateway Handlers
+        function openVerifyModal(documentId) {
+            currentDocIdToVerify = documentId;
+            const input = document.getElementById("verify_phone_input");
+            const errBox = document.getElementById("verifyError");
+            input.value = "";
+            errBox.style.display = "none";
+            document.getElementById("verifyModal").style.display = "flex";
+            input.focus();
+        }
+
+        function closeVerifyModal() {
+            currentDocIdToVerify = null;
+            document.getElementById("verifyModal").style.display = "none";
+        }
+
+        async function submitPhoneVerification() {
+            const phoneInput = document.getElementById("verify_phone_input").value.trim();
+            const errBox = document.getElementById("verifyError");
+            const btn = document.getElementById("btnConfirmVerify");
+
+            if (!phoneInput) {
+                errBox.innerText = "Please enter the registered owner phone number.";
+                errBox.style.display = "block";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Verifying...";
+            errBox.style.display = "none";
+
+            try {
+                const formData = new FormData();
+                formData.append("phone_number", phoneInput);
+
+                const response = await fetch(`/documents/${currentDocIdToVerify}/verify-and-view`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    let errMsg = "Verification failed. Incorrect phone number.";
+                    try {
+                        const err = await response.json();
+                        errMsg = err.detail || errMsg;
+                    } catch (_) {}
+                    errBox.innerText = errMsg;
+                    errBox.style.display = "block";
+                    return;
+                }
+
+                // File verified: convert stream to blob and open in new tab
+                const blob = await response.blob();
+                const fileUrl = URL.createObjectURL(blob);
+                window.open(fileUrl, "_blank");
+
+                closeVerifyModal();
+            } catch (e) {
+                errBox.innerText = "Server connection error.";
+                errBox.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Verify & Open";
             }
         }
 

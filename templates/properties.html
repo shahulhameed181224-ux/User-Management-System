@@ -248,8 +248,8 @@
             font-weight: 500;
             display: none;
         }
-        #message.success { display: block; background: var(--success-bg); color: var(--success); }
-        #message.error { display: block; background: var(--danger-bg); color: var(--danger); }
+        #message.success { display: block; background: var(--success-bg); color: var(--success); border: 1px solid #a7f3d0; }
+        #message.error { display: block; background: var(--danger-bg); color: var(--danger); border: 1px solid #fecaca; }
 
         .modal-overlay {
             display: none;
@@ -368,14 +368,11 @@
         </div>
 
         <form id="propertyForm">
-            <!-- Hidden Tenant ID field auto-populated from Assigned User -->
-            <input type="hidden" name="tenant_id" id="tenant_id">
-
             <div class="form-grid">
-                <!-- USER LINK -->
+                <!-- USERNAME-ONLY LINK (TENANT NAME NOT SHOWN IN FORM) -->
                 <div class="form-group">
-                    <label>Assigned User *</label>
-                    <select id="user_id" name="user_id" required>
+                    <label>Assigned User Name *</label>
+                    <select id="user_name" name="user_name" required onchange="verifyTenantForSelectedUser()">
                         <option value="">Select User</option>
                     </select>
                 </div>
@@ -461,7 +458,6 @@
                 <div class="form-group">
                     <label>Verified Status</label>
                     <select name="verified_status">
-                        <option value="">Select Status</option>
                         <option value="PENDING">Pending</option>
                         <option value="VERIFIED">Verified</option>
                     </select>
@@ -470,10 +466,9 @@
                 <div class="form-group">
                     <label>Risk Level</label>
                     <select name="risk_level">
-                        <option value="">Select Risk</option>
-                        <option value="HIGH">High</option>
-                        <option value="MEDIUM">Medium</option>
                         <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
                     </select>
                 </div>
 
@@ -496,7 +491,7 @@
                 <!-- SITE INSPECTION DETAILS -->
                 <div class="form-group">
                     <label>Boundary Stones</label>
-                    <input type="number" name="boundary_stones" placeholder="4">
+                    <input type="text" name="boundary_stones" placeholder="e.g. 4 stones intact">
                 </div>
 
                 <div class="form-group">
@@ -530,7 +525,7 @@
                 <!-- AUDIT -->
                 <div class="form-group">
                     <label>Created By *</label>
-                    <input type="text" name="created_by" placeholder="Admin username" required>
+                    <input type="text" name="created_by" value="Admin" required>
                 </div>
 
                 <div class="form-group">
@@ -673,7 +668,7 @@
 
         let availableUsers = [];
 
-        // 1. Load users & populate user select
+        // 1. Load users & populate user select by user_name WITHOUT showing tenant name
         async function loadUsers() {
             try {
                 const response = await fetch("/users", {
@@ -685,14 +680,15 @@
 
                 availableUsers = await response.json();
 
-                const userSelect = document.getElementById("user_id");
+                const userSelect = document.getElementById("user_name");
                 userSelect.innerHTML = '<option value="">Select User</option>';
 
                 availableUsers.forEach(user => {
                     const userOption = document.createElement("option");
-                    userOption.value = user.id;
-                    userOption.textContent = `${user.full_name || user.email_id} (${user.tenant_name || 'No Tenant'})`;
-                    userOption.dataset.tenantId = user.tenant_id || "";
+                    userOption.value = user.user_name;
+                    // Hides tenant name from the selection input
+                    userOption.textContent = `${user.user_name} (${user.full_name})`;
+                    userOption.dataset.tenantName = user.tenant_name || "";
                     userSelect.appendChild(userOption);
                 });
 
@@ -701,14 +697,39 @@
             }
         }
 
-        // Auto-assign hidden tenant_id when User is picked
-        document.getElementById("user_id").addEventListener("change", function () {
-            const selected = this.options[this.selectedIndex];
-            const tenantId = selected.dataset.tenantId;
-            document.getElementById("tenant_id").value = tenantId || "";
-        });
+        // Verify tenant quota when an assigned user is selected
+        async function verifyTenantForSelectedUser() {
+            const userSelect = document.getElementById("user_name");
+            const selectedUserName = userSelect.value;
+            const msgEl = document.getElementById("message");
 
-        // 2. Load Properties Directory Table
+            if (!selectedUserName) return;
+
+            const selectedOption = userSelect.options[userSelect.selectedIndex];
+            const tenantName = selectedOption.dataset.tenantName;
+
+            if (!tenantName) return;
+
+            try {
+                const res = await fetch(`/tenants/check/${encodeURIComponent(tenantName)}`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+                const tenantData = await res.json();
+
+                // If SINGLE tenant and already has a registered property, flag warning
+                if (!tenantData.allow_new_property) {
+                    msgEl.className = "error";
+                    msgEl.innerText = `Quota Notice: Tenant for user '${selectedUserName}' is SINGLE and already has a registered property.`;
+                    msgEl.style.display = "block";
+                } else {
+                    msgEl.style.display = "none";
+                }
+            } catch (err) {
+                console.error("Tenant verification error:", err);
+            }
+        }
+
+        // 2. Load Properties Directory Table (SHOWS TENANT IN OUTPUT)
         async function loadProperties() {
             try {
                 const response = await fetch("/properties", {
@@ -739,7 +760,7 @@
                         <td><span class="badge badge-code">${escapeHtml(p.property_code)}</span></td>
                         <td><strong>${escapeHtml(p.property_name)}</strong></td>
                         <td>${escapeHtml(p.tenant_name || "No Tenant")}</td>
-                        <td>${escapeHtml(p.user_name || "Unassigned")}</td>
+                        <td><strong>${escapeHtml(p.user_name || "Unassigned")}</strong></td>
                         <td>${escapeHtml(p.property_location || "-")}</td>
                         <td>${escapeHtml(p.property_landmark || "-")}</td>
                         <td>${p.area_size || "-"}</td>
@@ -757,7 +778,7 @@
                         <td>${escapeHtml(p.risk_level || "-")}</td>
                         <td>${p.fence_status ? "Fenced" : "No"}</td>
                         <td>${p.encroachment ? "Yes" : "No"}</td>
-                        <td>${p.boundary_stones ?? "-"}</td>
+                        <td>${escapeHtml(p.boundary_stones || "-")}</td>
                         <td>${escapeHtml(p.land_owner_name || "-")}</td>
                         <td>${escapeHtml(p.source || "-")}</td>
                         <td>${p.last_visited_at ? new Date(p.last_visited_at).toLocaleDateString() : "-"}</td>
@@ -771,7 +792,7 @@
             }
         }
 
-        // 3. View Full Property Details (Modal Window)
+        // 3. View Full Property Details (SHOWS TENANT IN OUTPUT MODAL)
         async function viewProperty(propertyId) {
             try {
                 const response = await fetch(`/properties/${propertyId}`, {
@@ -793,7 +814,7 @@
                             <div class="detail-item"><strong>Property Name</strong><span>${escapeHtml(p.property_name)}</span></div>
                             <div class="detail-item"><strong>Status</strong><span>${p.is_active ? "Active" : "Inactive"}</span></div>
                             <div class="detail-item"><strong>Tenant Name</strong><span>${escapeHtml(p.tenant_name || "N/A")}</span></div>
-                            <div class="detail-item"><strong>Assigned User</strong><span>${escapeHtml(p.user_name || "N/A")}</span></div>
+                            <div class="detail-item"><strong>Assigned User (user_name)</strong><span>${escapeHtml(p.user_name || "N/A")}</span></div>
                             <div class="detail-item"><strong>Land Owner</strong><span>${escapeHtml(p.land_owner_name || "N/A")}</span></div>
                             <div class="detail-item"><strong>Ownership Type</strong><span>${escapeHtml(p.ownership_type || "N/A")}</span></div>
                             <div class="detail-item"><strong>Purchase Date</strong><span>${p.purchase_date || "N/A"}</span></div>
@@ -809,7 +830,7 @@
                             <div class="detail-item"><strong>Area & Unit</strong><span>${p.area_size ? `${p.area_size} ${p.measurement_type || ''}` : 'N/A'}</span></div>
                             <div class="detail-item"><strong>Plot Type</strong><span>${escapeHtml(p.plot_type || "N/A")}</span></div>
                             <div class="detail-item"><strong>Coordinates</strong><span>${p.latitude || '-'}, ${p.longitude || '-'}</span></div>
-                            <div class="detail-item"><strong>Boundary Stones</strong><span>${p.boundary_stones ?? "N/A"}</span></div>
+                            <div class="detail-item"><strong>Boundary Stones</strong><span>${escapeHtml(p.boundary_stones || "N/A")}</span></div>
                         </div>
                     </div>
 
@@ -874,8 +895,7 @@
                 const form = document.getElementById("propertyForm");
 
                 form.dataset.id = property.id;
-                form.elements.tenant_id.value = property.tenant_id || "";
-                form.elements.user_id.value = property.user_id || "";
+                form.elements.user_name.value = property.user_name || "";
                 form.elements.property_code.value = property.property_code || "";
                 form.elements.property_name.value = property.property_name || "";
                 form.elements.property_location.value = property.property_location || "";
@@ -888,8 +908,8 @@
                 form.elements.ownership_type.value = property.ownership_type || "";
                 form.elements.purchase_date.value = property.purchase_date || "";
                 form.elements.market_value.value = property.market_value || "";
-                form.elements.verified_status.value = property.verified_status || "";
-                form.elements.risk_level.value = property.risk_level || "";
+                form.elements.verified_status.value = property.verified_status || "PENDING";
+                form.elements.risk_level.value = property.risk_level || "LOW";
                 form.elements.fence_status.value = String(property.fence_status);
                 form.elements.is_active.value = String(property.is_active);
                 form.elements.boundary_stones.value = property.boundary_stones || "";
@@ -897,7 +917,7 @@
                 form.elements.latest_ec_date.value = property.latest_ec_date || "";
                 form.elements.land_owner_name.value = property.land_owner_name || "";
                 form.elements.source.value = property.source || "";
-                form.elements.created_by.value = property.created_by || "";
+                form.elements.created_by.value = property.created_by || "Admin";
                 form.elements.updated_by.value = property.updated_by || "";
                 form.elements.photo_url.value = property.photo_url || "";
                 form.elements.location_url.value = property.location_url || "";
@@ -944,7 +964,7 @@
             }
         }
 
-        // 6. Submit Property Form (Create / Update)
+        // 6. Submit Property Form (Create / Update via user_name)
         document.getElementById("propertyForm").addEventListener("submit", async function(event) {
             event.preventDefault();
             const form = new FormData(this);
@@ -960,7 +980,6 @@
             data.longitude = data.longitude !== "" && data.longitude !== null ? Number(data.longitude) : null;
             data.area_size = data.area_size !== "" && data.area_size !== null ? Number(data.area_size) : null;
             data.market_value = data.market_value !== "" && data.market_value !== null ? Number(data.market_value) : null;
-            data.boundary_stones = data.boundary_stones !== "" && data.boundary_stones !== null ? parseInt(data.boundary_stones, 10) : null;
 
             // 3. Clean empty strings ("") to null
             for (const key in data) {
@@ -969,17 +988,10 @@
                 }
             }
 
-            // 4. Ensure tenant_id is assigned
-            if (!data.user_id) {
-                alert("Please select an Assigned User.");
+            // 4. Ensure username is provided
+            if (!data.user_name) {
+                alert("Please select a valid User.");
                 return;
-            }
-            if (!data.tenant_id) {
-                const userSelect = document.getElementById("user_id");
-                const selectedUserOption = userSelect.options[userSelect.selectedIndex];
-                if (selectedUserOption && selectedUserOption.dataset.tenantId) {
-                    data.tenant_id = selectedUserOption.dataset.tenantId;
-                }
             }
 
             const propertyId = this.dataset.id;
@@ -1026,7 +1038,6 @@
             const form = document.getElementById("propertyForm");
             form.reset();
             form.dataset.id = "";
-            document.getElementById("tenant_id").value = "";
             document.getElementById("formTitle").innerText = "Register New Property";
             document.getElementById("submitButton").innerText = "Create Property";
         }
